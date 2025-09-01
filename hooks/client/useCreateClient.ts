@@ -19,12 +19,9 @@ export function useCreateClient() {
       if (!res.ok) throw await res.json()
       return res.json() as Promise<ClientType>
     },
-
     onSuccess: () => {
-      // refresh client list after create
       qc.invalidateQueries({ queryKey: queryKeys.clients.all })
     },
-
     retry: 0,
   })
 }

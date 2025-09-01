@@ -1,5 +1,3 @@
-// not used use if u need 
-
 
 export async function api<T>(
   url: string,
