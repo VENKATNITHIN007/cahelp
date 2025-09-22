@@ -1,35 +1,37 @@
 "use client"
-
-import { useCreateDueDate } from "@/hooks/duedate/useCreateDueDate"
-import { useUpdateDueDate } from "@/hooks/duedate/useUpdateDueDate"
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import DueDateForm from "../forms/DueDateForm"
+import { useState } from "react"
+import DueDateForm from "@/components/forms/DueDateForm"
+import {DueType} from "@/schemas/apiSchemas/dueDateSchema"
 
-export function DueDateFormDialog({ clientId, due }: { clientId: string; due?: any }) {
-  const createMutation = useCreateDueDate()
-  const updateMutation = useUpdateDueDate()
 
-  const handleSubmit = (data: any) => {
-    if (due) {
-      updateMutation.mutate({ id: due._id, ...data })
-    } else {
-      createMutation.mutate({ clientId, ...data })
-    }
-  }
+export function DueDateFormDialog({
+  due,
+}: {
+  due?: DueType
+}) {
+  const [open, setOpen] = useState(false)
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={due ? "secondary" : "default"}>
+        <Button variant={due ? "outline" : "default"}>
           {due ? "Edit Due Date" : "Add Due Date"}
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{due ? "Edit Due Date" : "Add New Due Date"}</DialogTitle>
+          <DialogTitle>{due ? "Edit Due Date" : "Add Due Date"}</DialogTitle>
         </DialogHeader>
-        <DueDateForm due={due} onSubmit={handleSubmit} />
+
+        {/* Pass id + initialData if editing */}
+        <DueDateForm
+          id={due?._id}
+          initialData={due}
+          onSuccess={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   )

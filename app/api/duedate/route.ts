@@ -1,60 +1,123 @@
-import { authOptions } from "@/lib/auth";
-import { connectionToDatabase } from "@/lib/db";
 import mongoose from "mongoose"
-import DueDate from "@/models/DueDate";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth"
+import { connectionToDatabase } from "@/lib/db"
+import Client from "@/models/Client"
+import DueDate from "@/models/DueDate"
+import { getServerSession } from "next-auth"
+import { NextRequest, NextResponse } from "next/server"
+import { dueFormSchemaBackend } from "@/schemas/formSchemas"
+import { zodToFieldErrors } from "@/lib/zodError"
 
-// get all duedates with client name
+
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
-    
-    await connectionToDatabase();
 
-    // const now = new Date();
-    // const currentMonth = now.getMonth() + 1;
-    // const currentYear = now.getFullYear();
+    await connectionToDatabase()
 
     const dueDates = await DueDate.aggregate([
-  { $match: { userId: new mongoose.Types.ObjectId(session.user.id),
+      // filter to current user
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(session.user.id),
+        },
+      },
 
-    // use if need sorting 
-    // $expr: {
-    //         $and: [
-    //           { $eq: [{ $month: "$date" }, currentMonth] },
-    //           { $eq: [{ $year: "$date" }, currentYear] },
-    //         ],
-    //       },
-  } },
-  {
-    $lookup: {
-      from: "clients",       // collection name in MongoDB
-      localField: "clientId",
-      foreignField: "_id",
-      as: "client",
+      // join client info
+      {
+        $lookup: {
+          from: "clients",
+          localField: "clientId",
+          foreignField: "_id",
+          as: "client",
+        },
+      },
+      // safe unwind (client may be missing)
+      { $unwind: { path: "$client", preserveNullAndEmptyArrays: true } },
+
+    
+      // sort so order inside groups is preserved (newest month & newest date first)
+      { $sort: { date: -1 } },
+
+      // group by year+month and push the already-projected docs
+      {
+        $group: {
+          _id: { 
+          year:{$year:"$date"},
+          month:{$month:"$date"} 
+        },
+          dues: {
+            $push: {
+          _id:"$_id",
+          title: "$title",
+          date:"$date",
+          status: "$status",
+          clientName: "$client.name",
+        },
     },
-  },
-  { $unwind: "$client" }, // flatten client array
-  { 
-    $project: { 
-      title: 1, 
-      date: 1, 
-      status: 1, 
-      "client.name": 1,
-      month: { $month: "$date" }, // extract month
-      year: { $year: "$date" }    // optional if you want year-wise sorting
-    } 
-  },
-  { $sort: { date: 1 } } // sorted by year → month → date
-]);
+   }, // $$ROOT is the projected doc above
+ },
 
-    return NextResponse.json(dueDates, { status: 200 });
-  } catch (err) {
-    console.error("GET dueDates pipeline error:", err);
-    return NextResponse.json({ error: "Failed to fetch due dates" }, { status: 500 });
+      // sort groups (defensive)
+      { $sort: { "_id.year": -1, "_id.month": -1 } },
+
+      // reshape for client-friendly output
+      {
+        $project: {
+          _id: 0,
+          year: "$_id.year",
+          month: "$_id.month",
+          dues: 1,
+        },
+      },
+    ])
+
+
+
+    return NextResponse.json(dueDates,{ status: 200 })
+  } catch (error) {
+    console.error("GET /api/duedates error:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    const body = await req.json()
+
+    // ✅ clientId comes from body, not params
+    const parsed = dueFormSchemaBackend.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(zodToFieldErrors(parsed.error), { status: 400 })
+    }
+    
+
+    const dueData = {
+      ...parsed.data,
+      userId:session.user.id
+    }
+
+    await connectionToDatabase()
+
+    // ✅ ensure this client belongs to current user
+    const client = await Client.findOne({
+      _id: dueData.clientId,
+      userId: session.user.id,
+    })
+    if (!client) {
+      return NextResponse.json({ error: "Client not found" }, { status: 404 })
+    }
+
+    const due = await DueDate.create(dueData)
+    return NextResponse.json(due, { status: 201 })
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message }, { status: 500 })
   }
 }

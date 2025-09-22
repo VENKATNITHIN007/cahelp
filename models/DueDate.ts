@@ -9,14 +9,14 @@ export interface IDueDate{
     clientId:mongoose.Types.ObjectId;
     firmId?:mongoose.Types.ObjectId;
     userId:mongoose.Types.ObjectId;
-    status:"notRedayToFile"|"readyToFile"|"completed", default:"notRedayToFile";
+    status:"pending"|"completed", default:"pending";
     createdAt?:Date;
     updatedAt?:Date;
 }
 
 const dueDateSchema = new Schema<IDueDate>({
     title:{type:String, required:true},
-    status:{type:String, required : true, enum:["notRedayToFile","readyToFile","completed" ],default:"notRedayToFile"},
+    status:{type:String, required : true, enum:["pending","completed" ],default:"pending"},
     date:{type:Date, required:true},
     clientId:{type:Schema.Types.ObjectId,required:true ,ref:"Client"},
     description:String,
@@ -25,6 +25,15 @@ const dueDateSchema = new Schema<IDueDate>({
 },
 {
     timestamps:true
+})
+
+dueDateSchema.set("toJSON",{
+        transform:(_doc,ret:any)=>{
+                delete ret.createdAt
+                delete ret.updatedAt
+                delete ret.__v
+                return ret
+        }
 })
 
 const DueDate=models?.DueDate || model<IDueDate>("DueDate", dueDateSchema)

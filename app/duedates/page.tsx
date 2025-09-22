@@ -1,76 +1,198 @@
-// // display all duedates with status and delete optimistically
-// "use client"
+"use client"
 
-// import { useFetchDueDates } from "@/hooks/due/useFetchDueDates"
-// import { useDeleteDueDate } from "@/hooks/due/useDeleteDueDate"
-// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-// import { Button } from "@/components/ui/button"
-// import Link from "next/link"
-// import { toast } from "sonner"
-// import { useUpdateDueDateStatus } from "@/hooks/due/useUpdateDueDateStatus"
+import { useState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 
-// export default function DueDatesPage() {
-//   const { data: dueDates, isLoading, error } = useFetchDueDates()
-//   const updateStatus = useUpdateDueDateStatus()
-//   const deleteDueDate = useDeleteDueDate()
+import { useFetchDueDates } from "@/hooks/due/useFetchDueDates"
+import { useDeleteDueDate } from "@/hooks/due/useDeleteDueDate"
+import { useUpdateDueStatus } from "@/hooks/due/useUpdateDueStatus"
+import { DueType, GroupedDue } from "@/schemas/apiSchemas/dueDateSchema"
+import { DueDateFormDialog } from "@/components/dialogs/DueDateFormDialog"
 
-//   if (isLoading) return <p>Loading due dates...</p>
-//   if (error) return <p>Failed to load due dates ❌</p>
 
-//   return (
-//     <div className="space-y-6">
-//       <h1 className="text-2xl font-semibold">All Due Dates</h1>
+const MONTH_NAMES = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December",
+]
 
-//       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-//         {dueDates?.map((d: any) => (
-//           <Card key={d._id} className="shadow">
-//             <CardHeader>
-//               <CardTitle>{d.title}</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               <p><b>Client:</b> {d.client?.name || "N/A"}</p>
-//               <p><b>Status:</b> {d.status}</p>
-//               <p><b>Date:</b> {new Date(d.dueDate).toLocaleDateString()}</p>
+export default function DueDatesPage() {
+  // note: useFetchDueDates is expected to return GroupedDue[] (grouped by server)
+  const { data: grouped, isLoading } = useFetchDueDates() as { data?: GroupedDue[]; isLoading: boolean }
+  const deleteDueDate = useDeleteDueDate()
+  const updateStatus = useUpdateDueStatus()
+  const [selected, setSelected] = useState<DueType| null>(null)
 
-//               <div className="flex gap-2 mt-4 flex-wrap">
-//                 <Button onClick={() =>
-//                   updateStatus.mutate({ id: d._id, status: "Ready" },
-//                     { onSuccess: () => toast("Status updated ✅") })
-//                 }>
-//                   Ready
-//                 </Button>
-//                 <Button onClick={() =>
-//                   updateStatus.mutate({ id: d._id, status: "NotReady" },
-//                     { onSuccess: () => toast("Status updated ✅") })
-//                 }>
-//                   Not Ready
-//                 </Button>
-//                 <Button onClick={() =>
-//                   updateStatus.mutate({ id: d._id, status: "Completed" },
-//                     { onSuccess: () => toast("Status updated ✅") })
-//                 }>
-//                   Completed
-//                 </Button>
+  if (isLoading) return <p className="p-4">Loading...</p>
+  // if (!grouped || grouped.length === 0) return <p className="p-4">No due dates</p>
 
-//                 <Link href={`/duedates/${d._id}`}>
-//                   <Button variant="secondary">View</Button>
-//                 </Link>
+  const onStatusChange = (dueId: string, status: string) => {
+    updateStatus.mutate({ dueId, status })
+  }
 
-//                 <Button variant="destructive"
-//                   onClick={() =>
-//                     deleteDueDate.mutate(d._id, {
-//                       onSuccess: () => toast("Due date deleted ✅"),
-//                       onError: () => toast("Delete failed ❌"),
-//                     })
-//                   }>
-//                   Delete
-//                 </Button>
-//               </div>
-//             </CardContent>
-//           </Card>
-//         ))}
-//       </div>
-//     </div>
-//   )
-// }
+  const statusColorClass = (status?: string) =>
+    status === "completed"
+      ? "text-green-600"
+      : status === "pending"
+      ? "text-yellow-600"
+      : "text-yellow-600"
 
+  return (
+   <div className="p-4">
+         {/* Header */}
+         <div className="flex justify-between items-center mb-6">
+           <h1 className="text-xl font-bold">Duedates</h1>
+           <DueDateFormDialog />
+         </div>
+
+      {grouped?.map((group) => (
+        <section key={`${group.year}-${String(group.month).padStart(2, "0")}`} className="mb-8">
+          <h2 className="text-lg font-semibold mb-4">
+            {MONTH_NAMES[group.month - 1]} {group.year}
+          </h2>
+
+          {/* Mobile: Cards */}
+          <div className="grid gap-4 md:hidden">
+            {group.dues.map((d) => (
+              <Card key={d._id} className="rounded-2xl shadow-md">
+                <CardContent className="p-4 space-y-2">
+                  <p className="font-semibold text-lg">{d.title}</p>
+                  <p className="text-sm text-gray-600">Client: {d.clientName ?? "—"}</p>
+                  <p className="text-sm text-gray-600">Date: {new Date(d.date).toLocaleDateString()}</p>
+
+                  {/* merged select = status */}
+                  <select
+                    value={d.status ?? "pending"}
+                    onChange={(e) => onStatusChange(d._id, e.target.value)}
+                    className={`rounded-md border px-2 py-1 text-sm font-medium ${statusColorClass(d.status)}`}
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="completed">Completed</option>
+                  </select>
+
+                  <div className="flex gap-2 pt-2">
+                    <Link href={`/duedates/${d._id}`}>
+                      <Button size="sm" variant="outline">View</Button>
+                    </Link>
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setSelected(d)}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete {selected?.title}?</AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              selected &&
+                              deleteDueDate.mutate(selected._id, {
+                                onSuccess: () => setSelected(null),
+                              })
+                            }
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Desktop: Table */}
+          <div className="hidden md:block">
+            <div className="overflow-x-auto rounded-2xl shadow-md">
+              <table className="min-w-full border-collapse">
+                <thead className="bg-gray-100">
+                  <tr>
+                    <th className="p-3 text-left">Title</th>
+                    <th className="p-3 text-left">Client</th>
+                    <th className="p-3 text-left">Date</th>
+                    <th className="p-3 text-left">Status</th>
+                    <th className="p-3 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {group.dues.map((d) => (
+                    <tr key={d._id} className="border-b">
+                      <td className="p-3">{d.title}</td>
+                      <td className="p-3">{d.clientName ?? "—"}</td>
+                      <td className="p-3">{new Date(d.date).toLocaleDateString()}</td>
+                      <td className="p-3">
+                        <select
+                          value={d.status ?? "pending"}
+                          onChange={(e) => onStatusChange(d._id, e.target.value)}
+                          className={`rounded-md border px-2 py-1 text-sm font-medium ${statusColorClass(d.status)}`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </td>
+                      <td className="p-3 space-x-2">
+                        <Link href={`/duedates/${d._id}`}>
+                          <Button size="sm" variant="outline">View</Button>
+                        </Link>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => setSelected(d)}
+                            >
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete {selected?.title}?</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  selected &&
+                                  deleteDueDate.mutate(selected._id, {
+                                    onSuccess: () => setSelected(null),
+                                  })
+                                }
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      ))}
+    </div>
+  )
+}

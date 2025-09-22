@@ -1,59 +1,109 @@
 "use client"
 
 import { useParams } from "next/navigation"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DueDateFormDialog } from "@/components/dialogs/DueDateFormDialog"
-import { useFetchClientById } from "@/hooks/client/useFetchClientById"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { useDeleteClient } from "@/hooks/client/useDeleteClient"
 import Link from "next/link"
+import { ClientFormDialog } from "@/components/dialogs/ClientFormDialog"
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import { useFetchClientById } from "@/hooks/client/useFetchClientById"
 
-export default function ClientDetailsPage() {
+
+export default function ClientDetailPage() {
   const { id } = useParams()
-  const { data: client, isLoading, error } = useFetchClientById(id as string)
+  const deleteClientMutation = useDeleteClient()
+  const { data: client, isLoading } = useFetchClientById(id as string)
 
-  if (isLoading) return <p>Loading client...</p>
-  if (error) return <p>Failed to load client ❌</p>
+  if (isLoading) return <p>Loading...</p>
   if (!client) return <p>No client found</p>
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">{client.name}</h1>
-        <DueDateFormDialog clientId={client._id} />
-      </div>
-
+    <div className="p-6 space-y-8">
       {/* Client Info */}
       <Card>
-        <CardHeader><CardTitle>Client Info</CardTitle></CardHeader>
-        <CardContent>
-          <p><b>Email:</b> {client.email || "N/A"}</p>
-          <p><b>Phone:</b> {client.phoneNumber || "N/A"}</p>
-          <p><b>Type:</b> {client.type}</p>
+        <CardHeader className="flex justify-between items-center">
+          <CardTitle className="text-lg">{client.name}</CardTitle>
+            <div className="flex gap-2">
+    {/* Edit button */}
+    <ClientFormDialog client={client} />
+            {/* Delete button with AlertDialog */}
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive">Delete</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Delete {client.name}?
+          </AlertDialogTitle>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() =>
+              deleteClientMutation.mutate(client._id, {
+                onSuccess: () => {
+                  toast("Client deleted ✅")
+                },
+              })
+            }
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  </div>
+</CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          {client.phoneNumber && <p>📞 {client.phoneNumber}</p>}
+          {client.email && <p>✉ {client.email}</p>}
+          {client.type && <p>🏷 {client.type}</p>}
         </CardContent>
       </Card>
 
       {/* Due Dates */}
-      <Card>
-        <CardHeader><CardTitle>Due Dates</CardTitle></CardHeader>
-        <CardContent>
-          {client.dueDates?.length ? (
-            <ul className="space-y-2">
-              {client.dueDates.map((d: any) => (
-                <li key={d._id} className="flex justify-between items-center border-b pb-2">
-                  <div>
-                    <p className="font-medium">{d.title}</p>
-                    <p className="text-sm">{new Date(d.dueDate).toLocaleDateString()}</p>
-                  </div>
-                  <Link href={`/duedates/${d._id}`}>
-                    <Button variant="secondary">View</Button>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : <p>No due dates yet</p>}
-        </CardContent>
-      </Card>
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Due Dates</h2>
+        {client.dueDates.length === 0 ? (
+          <p className="text-muted-foreground">No due dates yet.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {client.dueDates.map((due) => (
+              <Card key={due._id} className="shadow-sm">
+                <CardHeader className="flex justify-between items-center pb-2">
+                  <CardTitle className="text-base font-medium truncate">
+                    {due.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm space-y-1">
+                  <p>📅 {new Date(due.date).toLocaleDateString()}</p>
+                  <p>Status: {due.status}</p>
+                  {due.description && (
+                    <p className="text-muted-foreground">{due.description}</p>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Back link */}
+      <Link href="/clients">
+        <Button variant="outline">← Back to Clients</Button>
+      </Link>
     </div>
   )
 }

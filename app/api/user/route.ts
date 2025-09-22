@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/User"; // make sure you import this
 import { zodToFieldErrors } from "@/lib/zodError";
-import { userProfileFormSchema,userProfileFormInput} from "@/lib/schemas";
+import { userProfileFormSchema,userProfileFormInput} from "@/schemas/formSchemas";
 
 // ✅ GET user
 export async function GET() {
@@ -16,7 +16,10 @@ export async function GET() {
     }
 
     await connectionToDatabase();
-    const user = await User.findById(session.user.id).select("-__v");
+    const user = await User.findById(session.user.id)
+    .select("-__v -createdAt -updatedAt")
+    .lean()
+
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -56,7 +59,8 @@ export async function PATCH(req: NextRequest) {
       session.user.id,
       { $set: updateFields }, // ✅ spread, not nested
       { new: true }
-    ).select("-__v");
+    )  .select("-__v -createdAt -updatedAt")
+    .lean()
 
     if (!updatedUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });

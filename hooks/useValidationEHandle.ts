@@ -5,7 +5,8 @@ import { FieldValues, UseFormReturn, Path } from "react-hook-form"
 
 export function useValidationErrorHandler<T extends FieldValues>(
   form: UseFormReturn<T>
-) {
+) 
+{
   return (e: any) => {
     const fe: Record<string, string[]> | undefined = e?.response?.data?.errors?.fieldErrors
     if (fe) {

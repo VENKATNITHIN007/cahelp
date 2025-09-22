@@ -1,9 +1,11 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { clientFormInput } from "@/lib/schemas"
-import { ClientType } from "@/lib/databaseSchemas"
+import { clientFormInput } from "@/schemas/formSchemas"
+
+
 import { queryKeys } from "@/lib/querykeys"
+import {ClientType } from "@/schemas/apiSchemas/clientSchema"
 
 export function useCreateClient() {
   const qc = useQueryClient()
@@ -17,10 +19,11 @@ export function useCreateClient() {
         body: JSON.stringify(data),
       })
       if (!res.ok) throw await res.json()
-      return res.json() as Promise<ClientType>
+      return res.json() as Promise<ClientType[]>
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.clients.all })
+      qc.invalidateQueries({ queryKey: queryKeys.dashboard.counts })
     },
     retry: 0,
   })

@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-export async function GET_PASSED() {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,6 +19,7 @@ export async function GET_PASSED() {
         $match: {
           userId: new mongoose.Types.ObjectId(session.user.id),
           date: { $lt: today },
+          status: "pending"
         },
       },
       {
@@ -35,7 +36,7 @@ export async function GET_PASSED() {
           title: 1,
           date: 1,
           status: 1,
-          "client.name": 1,
+          clientName:"$client.name"
         },
       },
       { $sort: { date: 1 } },

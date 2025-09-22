@@ -15,9 +15,10 @@ export function useDeleteClient() {
       if (!res.ok) throw await res.json()
       return res.json()
     },
-    onSuccess: (_, id) => {
+    onSuccess: (_, id ) => {
       qc.invalidateQueries({ queryKey: queryKeys.clients.all })
       qc.invalidateQueries({ queryKey: queryKeys.clients.detail(id) })
+      qc.invalidateQueries({ queryKey: queryKeys.dashboard.counts })
     },
     retry: 0,
   })

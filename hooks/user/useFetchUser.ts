@@ -1,7 +1,7 @@
 "use client"
 import { useQuery } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/querykeys"
-import { UserType } from "@/lib/databaseSchemas"
+import { UserType } from "@/schemas/apiSchemas/userSchema"
 
 
 export function useFetchUser() {
@@ -14,5 +14,6 @@ export function useFetchUser() {
       if (!res.ok) throw await res.json()
       return res.json() as Promise<UserType>
     },
+    staleTime:1000*60*5,
   })
 }

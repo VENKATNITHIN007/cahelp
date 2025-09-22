@@ -3,7 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import ClientForm from "@/components/forms/ClientForm"
-import type { ClientType } from "@/lib/databaseSchemas"
+import {ClientType} from "@/schemas/apiSchemas/clientSchema"
+
+
 
 export function ClientFormDialog({ client }: { client?: ClientType }) {
   const [open, setOpen] = useState(false)

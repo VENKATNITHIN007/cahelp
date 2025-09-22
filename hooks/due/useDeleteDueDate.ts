@@ -20,6 +20,7 @@ export function useDeleteDueDate() {
       if (deleted?.clientId) {
         qc.invalidateQueries({ queryKey: queryKeys.clients.detail(deleted.clientId) })
       }
+      qc.invalidateQueries({ queryKey: queryKeys.dashboard.counts })
     },
     retry: 0,
   })

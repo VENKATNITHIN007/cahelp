@@ -1,10 +1,13 @@
 import { authOptions } from "@/lib/auth";
 import { connectionToDatabase } from "@/lib/db";
 import DueDate from "@/models/DueDate";
+import Client from "@/models/Client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { zodToFieldErrors } from "@/lib/zodError";
-import { dueFormSchema } from "@/lib/schemas";
+import {  dueFormSchemaBackend } from "@/schemas/formSchemas";
+import { DueType } from "@/schemas/apiSchemas/dueDateSchema";
+
 // ✅ GET a single due date with client populated
 export async function GET(
   req: NextRequest,
@@ -18,17 +21,24 @@ export async function GET(
 
     await connectionToDatabase();
 
-    const { id } = params;
+    const { id } =await params;
+
 
     const dueDate = await DueDate.findOne({ _id: id, userId: session.user.id })
-      .populate("clientId")
-      .lean();
+    .select("-__v -createdAt -updatedAt")
+    .lean<DueType>()
 
     if (!dueDate) {
       return NextResponse.json({ error: "Due date not found" }, { status: 404 });
     }
+    const client = await Client.findById(dueDate.clientId)
+    .select("-__v -createdAt -updatedAt")
+    .lean()
+     if(!client){
+       return NextResponse.json({ error: "client not found for duedate" }, { status: 404 });
+     }
 
-    return NextResponse.json(dueDate, { status: 200 });
+    return NextResponse.json({...dueDate,client},{ status: 200 });
   } catch (err) {
     console.error("GET single due date error:", err);
     return NextResponse.json(
@@ -49,11 +59,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
 
     // validate partial updates
-    const parsed = dueFormSchema.partial().safeParse(body);
+    const parsed = dueFormSchemaBackend.partial().safeParse(body)
     if (!parsed.success) {
       return NextResponse.json(zodToFieldErrors(parsed.error), { status: 400 });
     }
@@ -61,25 +71,25 @@ export async function PATCH(
     await connectionToDatabase();
 
     const updateFields = { ...parsed.data };
-
-    // convert string → Date if present
-    if (updateFields.date) {
-      updateFields.date = new Date(updateFields.date);
-    }
-
     const updatedDueDate = await DueDate.findOneAndUpdate(
       { _id: id, userId: session.user.id },
       { $set: updateFields },
       { new: true }
     )
-      .populate("clientId")
-      .lean();
+    .select("-__v -createdAt -updatedAt")
+    .lean<DueType>();
 
     if (!updatedDueDate) {
       return NextResponse.json({ error: "Due date not found" }, { status: 404 });
     }
+     const client = await Client.findById(updatedDueDate.clientId)
+     .select("-__v -createdAt -updatedAt")
+     .lean()
+     if(!client){
+       return NextResponse.json({ error: "client not found for duedate" }, { status: 404 });
+     }
 
-    return NextResponse.json(updatedDueDate, { status: 200 });
+    return NextResponse.json({...updatedDueDate,client}, { status: 200 });
   } catch (err) {
     console.error("PATCH dueDate error:", err);
     return NextResponse.json({ error: "Failed to update due date" }, { status: 500 });

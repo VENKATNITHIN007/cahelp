@@ -6,10 +6,11 @@ import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { userProfileFormSchema,userProfileFormInput } from "@/lib/schemas"
+import { userProfileFormSchema,userProfileFormInput } from "@/schemas/formSchemas"
 import { useValidationErrorHandler } from "@/hooks/useValidationEHandle"
 
-export default function UserUpdateForm({ initialData }: { initialData?: userProfileFormInput }) {
+export default function UserUpdateForm({ initialData,onSuccess}:
+   { initialData?: Partial<userProfileFormInput>, onSuccess?:()=>void }) {
   const form = useForm<userProfileFormInput>({
     resolver: zodResolver(userProfileFormSchema),
     defaultValues: initialData ?? { name: "", phoneNumber: "+91" },
@@ -22,6 +23,7 @@ export default function UserUpdateForm({ initialData }: { initialData?: userProf
     mutation.mutate({ data: values }, {
       onSuccess: () => {
         toast("Profile updated ✅")
+        onSuccess?.()
        
       },
       onError: (e: any) => {

@@ -11,81 +11,106 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { CalendarIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { format } from "date-fns"
-import axios from "axios"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { dueFormSchema ,dueFormInput} from "@/lib/schemas"
+
+import { dueFormSchema, dueFormInput } from "@/schemas/formSchemas"
+import { useCreateDueDate } from "@/hooks/due/useCreateDueDate"
+import { useUpdateDueDate } from "@/hooks/due/useUpdateDueDate"
+import { useFetchClients } from "@/hooks/client/useFetchClients"
+import { useValidationErrorHandler } from "@/hooks/useValidationEHandle"
 
 export default function DueDateForm({
   id,
   initialData,
-  clientId,
+  onSuccess,
 }: {
   id?: string
-  initialData?:dueFormInput
-  clientId: string
+  initialData?: Partial<dueFormInput>
+  onSuccess?: () => void
 }) {
   const form = useForm<dueFormInput>({
     resolver: zodResolver(dueFormSchema),
-    defaultValues: initialData ?? {
-      title: "",
-      description: "",
-      date: new Date(),
-      status: "notReadyToFile",
-      clientId,
+    defaultValues: {
+      clientId: initialData?.clientId ?? "",
+      title: initialData?.title ?? "",
+      description: initialData?.description ?? "",
+      date: initialData?.date ?? "",
+      status: initialData?.status ?? "pending", // ✅ required by schema
     },
+    mode: "onChange",
   })
 
-  const onSubmit = async (values: any) => {
-    try {
-      if (id) {
-        await axios.patch(`/api/dues/${id}`, values, { withCredentials: true })
-        toast("Due updated")
-      } else {
-        await axios.post("/api/dues", values, { withCredentials: true })
-        toast("Due created")
-      }
-    } catch (e: any) {
-      console.error("Due submit error:", e)
+  const { data: clients } = useFetchClients()
+  const createMutation = useCreateDueDate()
+  const updateMutation = useUpdateDueDate()
+  const handleError = useValidationErrorHandler(form)
 
-      // Case 1: validation errors
-      const fe = e?.response?.data?.errors?.fieldErrors
-      if (fe) {
-        if (fe.title) form.setError("title", { type: "server", message: fe.title[0] })
-        if (fe.description) form.setError("description", { type: "server", message: fe.description[0] })
-        if (fe.date) form.setError("date", { type: "server", message: fe.date[0] })
-        if (fe.status) form.setError("status", { type: "server", message: fe.status[0] })
-        return
-      }
+  const onSubmit = (values: dueFormInput) => {
+    // ✅ convert date string → ISO string before sending
+    const data:dueFormInput = {
+      ...values,
+      date: new Date(values.date).toISOString(),
+    }
 
-      // Case 2: general error
-      toast(e?.response?.data?.error || "Something went wrong")
+    if (id) {
+      updateMutation.mutate(
+        { dueId:id, data },
+        {
+          onSuccess: () => {
+            toast("Due updated ✅")
+            onSuccess?.()
+          },
+          onError: handleError,
+        }
+      )
+    } else {
+      createMutation.mutate(data, {
+        onSuccess: () => {
+          toast("Due created ✅")
+          onSuccess?.()
+        },
+        onError: handleError,
+      })
     }
   }
 
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-4 max-w-md mx-auto p-6 bg-card rounded-xl shadow"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {/* Client Select */}
+        <FormField
+          control={form.control}
+          name="clientId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Client</FormLabel>
+              <FormControl>
+                <select {...field} className="w-full rounded-md border px-3 py-2">
+                  <option value="" disabled>
+                    Select client…
+                  </option>
+                  {clients?.map((c: any) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name} — {c.phoneNumber || c.email}
+                    </option>
+                  ))}
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Title */}
         <FormField
-          name="title"
           control={form.control}
+          name="title"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <input
-                  {...field}
-                  className="w-full border rounded-md p-2"
-                  placeholder="e.g. GST Filing"
-                />
+                <Input {...field} placeholder="Enter title" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -94,54 +119,29 @@ export default function DueDateForm({
 
         {/* Description */}
         <FormField
-          name="description"
           control={form.control}
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <input
-                  {...field}
-                  className="w-full border rounded-md p-2"
-                  placeholder="Optional notes"
-                />
+                <textarea {...field} className="w-full rounded-md border px-3 py-2" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Date (Calendar) */}
+        {/* Date */}
         <FormField
-          name="date"
           control={form.control}
+          name="date"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Due Date</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? format(field.value, "PPP") : "Pick a date"}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormControl>
+                <Input type="date" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -149,18 +149,14 @@ export default function DueDateForm({
 
         {/* Status */}
         <FormField
-          name="status"
           control={form.control}
+          name="status"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Status</FormLabel>
               <FormControl>
-                <select
-                  {...field}
-                  className="border rounded-md p-2 w-full bg-background"
-                >
-                  <option value="notReadyToFile">Not Ready</option>
-                  <option value="readyToFile">Ready</option>
+                <select {...field} className="w-full rounded-md border px-3 py-2">
+                  <option value="pending">pending</option>
                   <option value="completed">Completed</option>
                 </select>
               </FormControl>
@@ -169,9 +165,7 @@ export default function DueDateForm({
           )}
         />
 
-        <Button type="submit" className="w-full">
-          {id ? "Update Due" : "Create Due"}
-        </Button>
+        <Button type="submit">{id ? "Update Due" : "Create Due"}</Button>
       </form>
     </Form>
   )

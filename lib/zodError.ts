@@ -16,6 +16,8 @@ export function zodToFieldErrors(error: ZodError) {
   };
 }
 
+// instead of looping we can use objects directly like this
+
 // catch (e: any) {
 
 //       console.log(e)

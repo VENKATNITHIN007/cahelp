@@ -1,6 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectionToDatabase } from "@/lib/db";
-import { clientFormSchema,clientFormInput } from "@/lib/schemas";
+import { clientFormSchema,clientFormInput } from "@/schemas/formSchemas";
 import { zodToFieldErrors } from "@/lib/zodError";
 import Client from "@/models/Client";
 import DueDate from "@/models/DueDate";
@@ -15,19 +15,20 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     await connectionToDatabase();
 
-    const theClient = await Client.findOne({ _id: id, userId: session.user.id })
-      .lean();
+    const client = await Client.findOne({ _id: id, userId: session.user.id })
+    .select("-__v -createdAt -updatedAt")
+    .lean();
 
-    if (!theClient) {
+    if (!client) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
     const dueDates = await DueDate.find({clientId:id}).lean();
 
-    return NextResponse.json({...theClient,dueDates}, {status:200});
+    return NextResponse.json({...client,dueDates}, {status:200});
   } catch (err) {
     console.error("GET single client error:", err);
     return NextResponse.json({ error: "Failed to fetch client" }, { status: 500 });
@@ -40,7 +41,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
      const body = await req.json();
      const parsed = clientFormSchema.safeParse(body);
      
@@ -61,14 +62,16 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       { _id: id, userId: session.user.id },
       { $set: updateFields },
       { new: true }
-    );
+    ).select("-__v -createdAt -updatedAt")
+    .lean();;
 
     if (!updatedClient) {
       return NextResponse.json({ error: "Client not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedClient);
-  } catch {
+    return NextResponse.json(updatedClient,{status:200});
+  } catch (e:any){
+    console.log(e)
     return NextResponse.json({ error: "Failed to update client" }, { status: 500 });
   }
 }

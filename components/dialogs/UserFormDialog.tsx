@@ -3,9 +3,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import UserUpdateForm from "../forms/UserUpdateForm"
-import {userProfileFormInput} from "@/lib/schemas";
+import {UserType} from "@/schemas/apiSchemas/userSchema"
 
-export function UserFormDialog({ user }: { user: userProfileFormInput }) {
+
+export function UserFormDialog({ user }: { user: UserType }) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -19,7 +20,7 @@ export function UserFormDialog({ user }: { user: userProfileFormInput }) {
           <DialogTitle>Edit User Profile</DialogTitle>
         </DialogHeader>
 
-        <UserUpdateForm initialData={user} />
+        <UserUpdateForm initialData={user}   onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   )

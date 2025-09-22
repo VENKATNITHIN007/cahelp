@@ -1,40 +1,55 @@
-"use client"
+"use client";
 
-import { useFetchClients } from "@/hooks/client/useFetchClients"
-import { useFetchDueDates } from "@/hooks/duedate/useFetchDueDates"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import React from "react";
+import Link from "next/link";
+import { useFetchDashboard } from "@/hooks/dashboard/counts"; // adjust path if needed
 
-export default function DashboardPage() {
-  const { data: clients } = useFetchClients()
-  const { data: dueDates } = useFetchDueDates()
+export default function DashboardCountsPage() {
+  const { data: counts, isLoading, isError } = useFetchDashboard();
 
-  const totalClients = clients?.length || 0
-  const totalDueDates = dueDates?.length || 0
-  const urgentDueDates = dueDates?.filter((d: any) => d.status === "Urgent").length || 0
-  const notReady = dueDates?.filter((d: any) => d.status === "NotReady").length || 0
+  const cards = [
+    { key: "totalClients", label: "Total Clients", href: "/clients" },
+    { key: "totalDueDates", label: "Total Due Dates", href: "/duedates" },
+    { key: "urgent", label: "Urgent (3 days)", href: "/dashboard/work?filter=urgent" },
+    { key: "passed", label: "Overdue", href: "/dashboard/work?filter=passed" },
+    { key: "pending", label: "pending", href: "/dashboard/pending" },
+    { key: "completed", label: "Completed", href: "/dashboard/work?filter=completed" },
+  ] as const;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <div className="p-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl md:text-3xl font-semibold mb-6">Dashboard</h1>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader><CardTitle>Total Clients</CardTitle></CardHeader>
-          <CardContent><p className="text-xl font-bold">{totalClients}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Total Due Dates</CardTitle></CardHeader>
-          <CardContent><p className="text-xl font-bold">{totalDueDates}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Urgent</CardTitle></CardHeader>
-          <CardContent><p className="text-xl font-bold text-red-600">{urgentDueDates}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Not Ready</CardTitle></CardHeader>
-          <CardContent><p className="text-xl font-bold text-yellow-600">{notReady}</p></CardContent>
-        </Card>
-      </div>
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {isLoading
+          ? Array.from({ length: cards.length }).map((_, i) => (
+              <div key={i} className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+            ))
+          : isError || !counts
+          ? (
+            <div className="col-span-full p-4 rounded-lg border text-red-600">
+              Failed to load counts
+            </div>
+          )
+          : (
+            cards.map((c) => (
+              <Link key={c.key} href={c.href}>
+                <div
+                  className="
+                    rounded-xl border p-4 h-24 flex flex-col justify-between
+                    bg-white
+                    transition
+                    hover:bg-gray-50 hover:shadow-md hover:-translate-y-1
+                    active:scale-95
+                  "
+                >
+                  <div className="text-sm text-gray-500">{c.label}</div>
+                  <div className="text-2xl font-semibold">{(counts as any)[c.key] ?? 0}</div>
+                </div>
+              </Link>
+            ))
+          )}
+      </section>
     </div>
-  )
+  );
 }

@@ -29,10 +29,9 @@ export async function GET() {
       {
         $facet: {
           totalDueDates: [{ $count: "count" }],
-          urgent: [{ $match: { date: { $gte: today, $lte: threeDaysLater } } }, { $count: "count" }],
-          passed: [{ $match: { date: { $lt: today } } }, { $count: "count" }],
-          notReady: [{ $match: { status: "notRedayToFile" } }, { $count: "count" }],
-          ready: [{ $match: { status: "readyToFile" } }, { $count: "count" }],
+          urgent: [{ $match: { date: { $gte: today, $lte: threeDaysLater },status: "pending" }, }, { $count: "count" }],
+          passed: [{ $match: { date: { $lt: today },status: "pending" } }, { $count: "count" }],
+          pending: [{ $match: { status: "pending" } }, { $count: "count" }],
           completed: [{ $match: { status: "completed" } }, { $count: "count" }]
         }
       }
@@ -47,8 +46,7 @@ export async function GET() {
       totalDueDates: counts.totalDueDates[0]?.count || 0,
       urgent: counts.urgent[0]?.count || 0,
       passed: counts.passed[0]?.count || 0,
-      notReady: counts.notReady[0]?.count || 0,
-      ready: counts.ready[0]?.count || 0,
+      pending: counts.pending[0]?.count || 0,
       completed: counts.completed[0]?.count || 0
     });
 

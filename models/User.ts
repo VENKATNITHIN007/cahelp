@@ -33,6 +33,15 @@ const userSchema = new Schema<IUser>(
 
 )
 
+userSchema.set("toJSON",{
+        transform:(_doc,ret:any)=>{
+                delete ret.createdAt
+                delete ret.updatedAt
+                delete ret.__v
+                return ret
+        }
+})
+
 const User = models.User || model<IUser>("User", userSchema)
 
 export default User;

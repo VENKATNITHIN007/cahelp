@@ -1,74 +1,89 @@
 "use client"
 
-import { useDeleteClient } from "@/hooks/client/useDeleteClient"
 import { useFetchClients } from "@/hooks/client/useFetchClients"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { useDeleteClient } from "@/hooks/client/useDeleteClient"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { ClientFormDialog } from "@/components/dialogs/ClientFormDialog"
-import { DueDateFormDialog } from "@/components/dialogs/DueDateFormDialog"
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog"
-import { toast } from "sonner"
 import Link from "next/link"
+import { useState } from "react"
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import type { ClientType } from "@/schemas/apiSchemas/clientSchema"
 
 export default function ClientsPage() {
-  const { data: clients, isLoading, error } = useFetchClients()
-  const deleteMutation = useDeleteClient()
+  const { data: clients, isLoading } = useFetchClients()
+  const deleteClient = useDeleteClient()
+  const [selected, setSelected] = useState<ClientType | null>(null)
 
-  if (isLoading) return <p>Loading clients...</p>
-  if (error) return <p>Failed to load clients ❌</p>
+  if (isLoading) return <p className="p-4">Loading...</p>
 
   return (
-    <div className="space-y-6">
-      {/* Top bar */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">Clients</h1>
-        <ClientFormDialog /> {/* Add client button */}
+    <div className="p-4">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-xl font-bold">Clients</h1>
+        <ClientFormDialog />
       </div>
 
-      {/* Client cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {clients?.map((client: any) => (
-          <Card key={client._id} className="shadow p-4">
-            <CardHeader>
-              <CardTitle>{client.name}</CardTitle>
-            </CardHeader>
+      {/* Mobile: Cards */}
+      <div className="grid gap-4 md:hidden">
+        {clients?.map((c) => (
+          <Card key={c._id} className="rounded-2xl shadow-md">
+            <CardContent className="p-4 space-y-2">
+              <p className="font-semibold text-lg">{c.name}</p>
+              <p className="text-sm text-gray-600">
+                {c.phoneNumber || "No phone"}
+              </p>
+              <p className="text-sm text-gray-600">{c.email || "No email"}</p>
+              <p className="text-sm font-medium text-red-600">
+                Pending Dues: {c.pendingDues}
+              </p>
 
-            <CardContent>
-              <p>{client.phoneNumber || "No phone"}</p>
-              <p>{client.email || "No email"}</p>
-
-              {/* Action buttons */}
-              <div className="flex gap-2 mt-4 flex-wrap">
-                <Link href={`/clients/${client._id}`}>
-                  <Button variant="secondary">View</Button>
+              <div className="flex gap-2 pt-2">
+                <Link href={`/clients/${c._id}`}>
+                  <Button size="sm" variant="outline">
+                    View
+                  </Button>
                 </Link>
 
-                <ClientFormDialog client={client} /> {/* Edit */}
-
-                <DueDateFormDialog clientId={client._id} /> {/* Add Due Date */}
+                <ClientFormDialog client={c} />
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive">Delete</Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => setSelected(c)}
+                    >
+                      Delete
+                    </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete client?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will remove the client and related due dates.
-                      </AlertDialogDescription>
+                      <AlertDialogTitle>
+                         Are you Sure you want to Delete {selected?.name}? , all due dates associated with client will also be deleted
+                      </AlertDialogTitle>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() =>
-                          deleteMutation.mutate(client._id, {
-                            onSuccess: () => toast("Client deleted ✅"),
-                            onError: () => toast("Delete failed ❌"),
+                          selected &&
+                          deleteClient.mutate(selected._id, {
+                            onSuccess: () => setSelected(null),
                           })
                         }
                       >
-                        Confirm
+                        Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -77,6 +92,76 @@ export default function ClientsPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Desktop: Table */}
+      <div className="hidden md:block">
+        <div className="overflow-x-auto rounded-2xl shadow-md">
+          <table className="min-w-full border-collapse">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3 text-left">Name</th>
+                <th className="p-3 text-left">Phone</th>
+                <th className="p-3 text-left">Email</th>
+                <th className="p-3 text-left">Pending Dues</th>
+                <th className="p-3 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {clients?.map((c) => (
+                <tr key={c._id} className="border-b">
+                  <td className="p-3">{c.name}</td>
+                  <td className="p-3">{c.phoneNumber || "—"}</td>
+                  <td className="p-3">{c.email || "—"}</td>
+                  <td className="p-3 text-red-600 font-medium">
+                    {c.pendingDues ?? 0}
+                  </td>
+                  <td className="p-3 space-x-2">
+                    <Link href={`/clients/${c._id}`}>
+                      <Button size="sm" variant="outline">
+                        View
+                      </Button>
+                    </Link>
+
+                    <ClientFormDialog client={c} />
+
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => setSelected(c)}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Are you Sure you want to Delete {selected?.name}? , all due dates associated with client will also be deleted
+                          </AlertDialogTitle>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              selected &&
+                              deleteClient.mutate(selected._id, {
+                                onSuccess: () => setSelected(null),
+                              })
+                            }
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

@@ -1,8 +1,8 @@
 "use client"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { queryKeys } from "@/lib/querykeys"
-import { userProfileFormInput} from "@/lib/schemas";
-import { UserType } from "@/lib/databaseSchemas"
+import { userProfileFormInput} from "@/schemas/formSchemas";
+import { UserType } from "@/schemas/apiSchemas/userSchema"
 
 type UpdateUserInput = {  data: userProfileFormInput }
 

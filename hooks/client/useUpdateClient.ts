@@ -1,9 +1,9 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { clientFormInput } from "@/lib/schemas"
-import { ClientType } from "@/lib/databaseSchemas"
+import { clientFormInput } from "@/schemas/formSchemas"
 import { queryKeys } from "@/lib/querykeys"
+import {ClientType } from "@/schemas/apiSchemas/clientSchema"
 
 export function useUpdateClient() {
   const qc = useQueryClient()
@@ -11,13 +11,14 @@ export function useUpdateClient() {
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: clientFormInput }) => {
       const res = await fetch(`/api/clients/${id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(data),
       })
-      if (!res.ok) throw await res.json()
-      return res.json() as Promise<ClientType>
+      const da = await res.json()
+      if (!res.ok) throw da
+      return da as ClientType
     },
     onSuccess: (updated) => {
       qc.invalidateQueries({ queryKey: queryKeys.clients.all })

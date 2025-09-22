@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { clientFormSchema, clientFormInput } from "@/lib/schemas"
+import { clientFormSchema, clientFormInput } from "@/schemas/formSchemas"
 import { useUpdateClient } from "@/hooks/client/useUpdateClient"
 import { useCreateClient } from "@/hooks/client/useCreateClient"
 import { useValidationErrorHandler } from "@/hooks/useValidationEHandle"

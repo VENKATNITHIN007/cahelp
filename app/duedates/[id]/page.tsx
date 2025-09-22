@@ -1,43 +1,76 @@
-// "use client"
+"use client"
 
-// import { useParams } from "next/navigation"
-// import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-// // import { Button } from "@/components/ui/button"
-// import { DueDateFormDialog } from "@/components/dialogs/DueDateFormDialog"
-// import { useFetchClientById } from "@/hooks/client/useFetchClientById"
+import { useParams, useRouter } from "next/navigation"
+import { useFetchDueDateById } from "@/hooks/due/useFetchDueDateById"
+import { useDeleteDueDate } from "@/hooks/due/useDeleteDueDate"
+import { DueDateFormDialog } from "@/components/dialogs/DueDateFormDialog"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
+import Link from "next/link"
 
-// export default function DueDateDetailsPage() {
-//   const { id } = useParams()
-//   const { data: dueDate, isLoading, error } = useFetchClientById(id as string)
+export default function DueDetailPage() {
+  const { id } =  useParams()
+  const router = useRouter()
 
-//   if (isLoading) return <p>Loading due date...</p>
-//   if (error) return <p>Failed to load due date ❌</p>
-//   if (!dueDate) return <p>No due date found</p>
+  const { data: due, isLoading } = useFetchDueDateById(id as string)
+  const deleteMutation = useDeleteDueDate()
 
-//   return (
-//     <div className="space-y-6">
-//       <h1 className="text-2xl font-semibold">{dueDate.title}</h1>
+  if (isLoading) return <p>Loading...</p>
+  if (!due) return <p>Due date not found</p>
 
-//       <Card>
-//         <CardHeader><CardTitle>Due Date Info</CardTitle></CardHeader>
-//         <CardContent>
-//           <p><b>Status:</b> {dueDate.status}</p>
-//           <p><b>Deadline:</b> {new Date(dueDate.dueDate).toLocaleDateString()}</p>
-//           <p><b>Description:</b> {dueDate.description || "N/A"}</p>
-//         </CardContent>
-//       </Card>
+  return (
+    <div className="p-6 space-y-8">
+      {/* Due Info */}
+      <Card>
+        <CardHeader className="flex justify-between items-center">
+          <CardTitle className="text-lg">{due.title}</CardTitle>
+          <div className="flex gap-2">
+            {/* ✅ Edit form dialog */}
+            <DueDateFormDialog due={due} />
+            <Button
+              variant="destructive"
+              onClick={() =>
+                confirm("Delete this due date?") &&
+                deleteMutation.mutate(due._id, {
+                  onSuccess: () => {
+                    toast("Due date deleted ✅")
+                    router.push("/duedates")
+                  },
+                })
+              }
+            >
+              Delete
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <p>
+            <strong>Date:</strong>{" "}
+            {new Date(due.date).toLocaleDateString()}
+          </p>
+          <p>
+            <strong>Client:</strong>{" "}
+            <Link
+              href={`/clients/${due.client._id}`}
+              className="text-blue-600 underline"
+            >
+              {due.client.name}
+            </Link>
+          </p>
+          {due.description && (
+            <p>
+              <strong>Description:</strong> {due.description}
+            </p>
+          )}
 
-//       <Card>
-//         <CardHeader><CardTitle>Client</CardTitle></CardHeader>
-//         <CardContent>
-//           <p><b>Name:</b> {dueDate.client?.name}</p>
-//           <p><b>Email:</b> {dueDate.client?.email}</p>
-//           <p><b>Phone:</b> {dueDate.client?.phoneNumber}</p>
-//         </CardContent>
-//       </Card>
+        </CardContent>
+      </Card>
 
-//  <DueDateFormDialog clientId={dueDate.clientId} due={dueDate} />
-
-//     </div>
-//   )
-// }
+      {/* Back link */}
+      <Link href="/duedates">
+        <Button variant="outline">← Back to Due Dates</Button>
+      </Link>
+    </div>
+  )
+}

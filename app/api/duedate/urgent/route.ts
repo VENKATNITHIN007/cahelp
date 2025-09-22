@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 // Get urgent due dates (next 3 days, status ignored)
-export async function GET_URGENT() {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,6 +22,7 @@ export async function GET_URGENT() {
         $match: {
           userId: new mongoose.Types.ObjectId(session.user.id),
           date: { $gte: today, $lte: threeDaysLater },
+          status: "pending"
         },
       },
       {
@@ -38,7 +39,7 @@ export async function GET_URGENT() {
           title: 1,
           date: 1,
           status: 1,
-          "client.name": 1,
+          clientName:"$client.name"
         },
       },
       { $sort: { date: 1 } },
