@@ -123,7 +123,7 @@ export default function WorkPage() {
                       {d.status ?? "pending"}
                     </span>
 
-                    <Link href={`/duedates/${d._id}`}>
+                    <Link href={`/app/duedates/${d._id}`}>
                       <Button size="sm" variant="outline">View</Button>
                     </Link>
 
@@ -174,7 +174,7 @@ export default function WorkPage() {
                       </td>
                       <td className="p-3 align-top">
                         <div className="flex items-center gap-2">
-                          <Link href={`/duedates/${d._id}`}>
+                          <Link href={`/app/duedates/${d._id}`}>
                             <Button size="sm" variant="outline">View</Button>
                           </Link>
 

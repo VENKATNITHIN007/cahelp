@@ -1,3 +1,4 @@
+// components/layout/AppLayout.tsx
 "use client";
 
 import React, { ReactNode, useEffect, useState } from "react";
@@ -5,61 +6,65 @@ import { useRouter } from "next/navigation";
 import Sidebar from "./sidebar/sidebar";
 import Topbar from "./topbar/topbar";
 import BottomBar from "./bottombar/bottombar";
-import { cn } from "@/lib/utils";
 
-export default function Layout({ children }: { children: ReactNode }) {
+
+
+type AppLayoutProps = {
+  children: ReactNode;
+  // optional: when true, remembers user choice in localStorage
+  persistSidebar?: boolean;
+};
+
+export default function AppLayout({ children, persistSidebar = false }: AppLayoutProps) {
   const router = useRouter();
 
-  // collapsed sidebar (desktop only)
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+  // Visible by default
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
+
+  // optional persistence
+  useEffect(() => {
+    if (!persistSidebar) return;
+    try {
+      const raw = localStorage.getItem("sidebarVisible");
+      if (raw !== null) setSidebarVisible(JSON.parse(raw));
+    } catch {}
+  }, [persistSidebar]);
 
   useEffect(() => {
+    if (!persistSidebar) return;
     try {
-      const raw = localStorage.getItem("sidebarCollapsed");
-      if (raw) setCollapsed(JSON.parse(raw));
+      localStorage.setItem("sidebarVisible", JSON.stringify(sidebarVisible));
     } catch {}
-  }, []);
+  }, [persistSidebar, sidebarVisible]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem("sidebarCollapsed", JSON.stringify(collapsed));
-    } catch {}
-  }, [collapsed]);
-
-  // Settings always navigates to /settings (no sheet)
-  const onOpenSettings = () => {
-    router.push("/settings");
-  };
+  const handleOpenContact = () => router.push("/contactus");
+  const toggleSidebar = () => setSidebarVisible((v) => !v);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Desktop sidebar */}
-      <aside
-        className={cn(
-          "hidden md:block transition-all duration-150 border-r bg-white",
-          collapsed ? "w-20" : "w-64"
-        )}
-      >
-        <Sidebar
-          collapsed={collapsed}
-          onToggleCollapsed={() => setCollapsed((v) => !v)}
-          onOpenSettings={onOpenSettings}
-        />
-      </aside>
+      {/* Sidebar visible only on md+ and only when sidebarVisible is true */}
+      {sidebarVisible && (
+        <aside className="hidden md:block md:w-64 border-r bg-white">
+          <Sidebar onOpenContact={handleOpenContact} />
+        </aside>
+      )}
 
-      {/* Main content */}
+      {/* Main area: when sidebar hidden the main expands naturally */}
       <div className="flex-1 flex flex-col min-h-screen">
-        {/* Desktop topbar (no collapse props required by Topbar) */}
-        <div className="hidden md:block">
-          <Topbar />
-        </div>
+        <Topbar
+          onOpenContact={handleOpenContact}
+          onToggleSidebar={toggleSidebar}
+          sidebarVisible={sidebarVisible}
+        />
 
-        <main className="flex-1 p-6 overflow-auto">{children}</main>
+        <main className="flex-1 p-6 overflow-auto transition-all duration-150">
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom bar */}
       <div className="md:hidden">
-        <BottomBar onOpenSettings={onOpenSettings} />
+        <BottomBar  />
       </div>
     </div>
   );
