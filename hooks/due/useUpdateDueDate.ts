@@ -27,9 +27,9 @@ export function useUpdateDueDate() {
     },
     onSuccess: (_,{dueId}) => {
       // ✅ refresh due dates cache
-      queryClient.invalidateQueries({ queryKey: [queryKeys.dues.all] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dues.all })
       // we used _id because we are access _id from database , no need to use _id u can acess variables passed to mutation fn also , learn more on onSuccess
-      queryClient.invalidateQueries({queryKey: [queryKeys.dues.detail(dueId)]})
+      queryClient.invalidateQueries({queryKey: queryKeys.dues.detail(dueId)})
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.counts })
     },
   })

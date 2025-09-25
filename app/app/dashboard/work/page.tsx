@@ -15,19 +15,17 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
- // adjust if necessary
-import { useDeleteDueDate } from "@/hooks/due/useDeleteDueDate"; // adjust if necessary
-import { useUpdateDueStatus } from "@/hooks/due/useUpdateDueStatus"; 
+import { useDeleteDueDate } from "@/hooks/due/useDeleteDueDate";
+import { useUpdateDueStatus } from "@/hooks/due/useUpdateDueStatus";
 import { useFetchOtherDueDates } from "@/hooks/dashboard/other";
 import { toast } from "sonner";
-
-// adjust if necessary
+import { DueType } from "@/schemas/apiSchemas/dueDateSchema";
 
 type FilterKey = "urgent" | "passed" | "completed";
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "urgent", label: "Urgent" },
-  { key: "passed", label: "Passed" },
+  { key: "passed", label: "Overdue" },
   { key: "completed", label: "Completed" },
 ];
 
@@ -36,28 +34,23 @@ export default function WorkPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // read only ?filter= (no tab)
   const urlFilter = (search?.get("filter") ?? undefined) as FilterKey | undefined;
   const initial = urlFilter ?? "urgent";
   const [filter, setFilter] = useState<FilterKey>(initial);
 
-  // sync local state if URL changes (back/forward or external link)
   useEffect(() => {
     const q = (search?.get("filter") ?? undefined) as FilterKey | undefined;
     if ((q ?? "urgent") !== filter) {
       setFilter(q ?? "urgent");
     }
-
   }, [search?.toString()]);
 
-  // fetch flat data from server for the selected filter
   const { data, isLoading, isError, refetch } = useFetchOtherDueDates(filter);
   const items = useMemo(() => {
     if (!data) return [];
     return Array.isArray(data) ? data : data.data ?? [];
   }, [data]);
 
-  // actions
   const deleteDue = useDeleteDueDate();
   const updateStatus = useUpdateDueStatus();
 
@@ -66,8 +59,6 @@ export default function WorkPage() {
     const url = `${pathname}?filter=${encodeURIComponent(next)}`;
     router.push(url);
   };
-
-  
 
   const onStatusChange = (id: string, status: string) => {
     updateStatus.mutate(
@@ -79,6 +70,17 @@ export default function WorkPage() {
       }
     );
   };
+
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+    const toggleExpand = (id: string) => setExpandedId(prev => (prev === id ? null : id));
+  
+    const generateMessage = (d: DueType) => {
+      const name = d.clientName ?? "Client";
+      const title = d.title ?? "task";
+      const dateStr = d.date ? new Date(d.date).toLocaleDateString() : "the due date";
+      return `Hello ${name},\n\nThis is a reminder that the due date for "${title}" is on ${dateStr}. Please share the required details at the earliest so we can proceed.\n\nThank you.`;
+    };
+  
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -107,70 +109,113 @@ export default function WorkPage() {
       ) : (
         <>
           {/* Mobile: cards */}
-          <div className="grid gap-4 md:hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
             {items.map((d: any) => (
               <Card
                 key={d._id}
                 className="rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-transform cursor-pointer"
+              >{/* --- Replace CardContent inside your mobile Card --- */}
+{/* --- Mobile CardContent (replace existing CardContent in mobile loop) --- */}
+<CardContent className="p-4">
+  <div className="flex flex-col sm:flex-row sm:justify-between gap-3">
+    <div className="min-w-0 flex-1">
+      <p className="font-semibold text-lg truncate">{d.title}</p>
+      <p className="text-sm text-gray-600 truncate">Client: {d.clientName ?? "—"}</p>
+    </div>
+
+    <div className="text-sm text-gray-500 flex-shrink-0">
+      {d.date ? new Date(d.date).toLocaleDateString() : "—"}
+    </div>
+  </div>
+
+  {/* Actions area: buttons inline on sm+, stacked on xs. Select placed in its own block to avoid wrapping */}
+  <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2">
+    {/* buttons container - will not grow */}
+    <div className="flex items-center gap-2 flex-shrink-0">
+      <Link href={`/app/duedates/${d._id}`}>
+        <Button size="sm" variant="outline">View</Button>
+      </Link>
+      {d.status==="pending" && (
+      <Button size="sm" variant="secondary" onClick={() => toggleExpand(d._id)}> Contact</Button>
+      )}
+                          
+
+      {d.status === "completed" && (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button size="sm" variant="destructive">Delete</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete {d.title}?</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() =>
+                  deleteDue.mutate(d._id, {
+                    onSuccess: () => refetch?.(),
+                    onError: (e: any) => {
+                      toast.error(e?.error ?? "Delete failed");
+                    },
+                  })
+                }
               >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-lg">{d.title}</p>
-                      <p className="text-sm text-gray-600">Client: {d.clientName ?? "—"}</p>
-                    </div>
-                    <div className="text-sm text-gray-500">{d.date ? new Date(d.date).toLocaleDateString() : "—"}</div>
-                  </div>
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </div>
 
-                  <div className="flex items-center gap-2 mt-3">
-                    <span className="text-sm px-2 py-0.5 rounded bg-gray-100 text-gray-800">
-                      {d.status ?? "pending"}
-                    </span>
-
-                    <Link href={`/app/duedates/${d._id}`}>
-                      <Button size="sm" variant="outline">View</Button>
-                    </Link>
-
-                   {d.status === "completed" && (
-  <AlertDialog>
-    <AlertDialogTrigger asChild>
-      <Button size="sm" variant="destructive">Delete</Button>
-    </AlertDialogTrigger>
-
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete {d.title}?</AlertDialogTitle>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction
-          onClick={() =>
-            deleteDue.mutate(d._id, {
-              onSuccess: () => refetch?.(),
-              onError: (e: any) => {
-             
-                toast.error(e?.error ?? "Delete failed");
-              },
-            })
-          }
-        >
-          Delete
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)}
-
-                    <select
-                      value={d.status ?? "pending"}
-                      onChange={(e) => onStatusChange(d._id, e.target.value)}
-                      className="rounded border px-2 py-1 text-sm"
-                    >
-                      <option value="pending">pending</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </div>
-                </CardContent>
+    {/* select in its own block so it won't push the buttons; full width on xs so it fits */}
+    <div className="w-full sm:w-auto ">
+      <select
+        value={d.status ?? "pending"}
+        onChange={(e) => onStatusChange(d._id, e.target.value)}
+        className="rounded border px-2 py-1 text-sm text-green-600 w-full sm:w-auto"
+      >
+        <option value="pending">pending</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+  </div>
+  
+                    {expandedId === d._id && (
+                      <div className="mt-3 space-y-2 border-t pt-3">
+                        <textarea
+                          readOnly
+                          rows={4}
+                          className="w-full border rounded p-2 text-sm"
+                          value={generateMessage(d)}
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" onClick={() => navigator.clipboard.writeText(generateMessage(d))}>
+                            Copy
+                          </Button>
+                          {d.email && (
+                            <a
+                              href={`mailto:${d.email}?subject=Required Details&body=${encodeURIComponent(generateMessage(d))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" variant="outline">Email</Button>
+                            </a>
+                          )}
+                          {d.phoneNumber && (
+                            <a
+                              href={`https://wa.me/${d.phoneNumber.replace(/\D/g, "")}?text=${encodeURIComponent(generateMessage(d))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" variant="outline">WhatsApp</Button>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
+</CardContent>
               </Card>
             ))}
           </div>
@@ -193,12 +238,16 @@ export default function WorkPage() {
                     <tr key={d._id} className="border-b hover:bg-gray-50">
                       <td className="p-3 align-top">{d.title}</td>
                       <td className="p-3 align-top">{d.clientName ?? "—"}</td>
-                      <td className="p-3 align-top">{d.date ? new Date(d.date).toLocaleDateString() : "—"}</td>
+                      <td className="p-3 align-top">
+                        {d.date
+                          ? new Date(d.date).toLocaleDateString()
+                          : "—"}
+                      </td>
                       <td className="p-3 align-top">
                         <select
                           value={d.status ?? "pending"}
                           onChange={(e) => onStatusChange(d._id, e.target.value)}
-                          className="rounded border px-2 py-1 text-sm"
+                          className="rounded border px-2 py-1 text-sm text-green-600"
                         >
                           <option value="pending">Pending</option>
                           <option value="completed">Completed</option>
@@ -207,39 +256,83 @@ export default function WorkPage() {
                       <td className="p-3 align-top">
                         <div className="flex items-center gap-2">
                           <Link href={`/app/duedates/${d._id}`}>
-                            <Button size="sm" variant="outline">View</Button>
+                            <Button size="sm" variant="outline">
+                              View
+                            </Button>
                           </Link>
+                           {d.status==="pending" && (
+      <Button size="sm" variant="secondary" onClick={() => toggleExpand(d._id)}> Contact</Button>
+      )}
 
                           {d.status === "completed" && (
-  <AlertDialog>
-    <AlertDialogTrigger asChild>
-      <Button size="sm" variant="destructive">Delete</Button>
-    </AlertDialogTrigger>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive">
+                                  Delete
+                                </Button>
+                              </AlertDialogTrigger>
 
-    <AlertDialogContent>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete {d.title}?</AlertDialogTitle>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction
-          onClick={() =>
-            deleteDue.mutate(d._id, {
-              onSuccess: () => refetch?.(),
-              onError: (e: any) => {
-             
-                toast.error(e?.error ?? "Delete failed");
-              },
-            })
-          }
-        >
-          Delete
-        </AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-)}
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Delete {d.title}?
+                                  </AlertDialogTitle>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      deleteDue.mutate(d._id, {
+                                        onSuccess: () => refetch?.(),
+                                        onError: (e: any) => {
+                                          toast.error(
+                                            e?.error ?? "Delete failed"
+                                          );
+                                        },
+                                      })
+                                    }
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </div>
+                        
+                    {expandedId === d._id && (
+                      <div className="mt-3 space-y-2 border-t pt-3">
+                        <textarea
+                          readOnly
+                          rows={4}
+                          className="w-full border rounded p-2 text-sm"
+                          value={generateMessage(d)}
+                        />
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" onClick={() => navigator.clipboard.writeText(generateMessage(d))}>
+                            Copy
+                          </Button>
+                          {d.email && (
+                            <a
+                              href={`mailto:${d.email}?subject=Required Details&body=${encodeURIComponent(generateMessage(d))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" variant="outline">Email</Button>
+                            </a>
+                          )}
+                          {d.phoneNumber && (
+                            <a
+                              href={`https://wa.me/${d.phoneNumber.replace(/\D/g, "")}?text=${encodeURIComponent(generateMessage(d))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Button size="sm" variant="outline">WhatsApp</Button>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    )}
                       </td>
                     </tr>
                   ))}

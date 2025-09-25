@@ -41,7 +41,7 @@ export async function GET() {
 
     
       // sort so order inside groups is preserved (newest month & newest date first)
-      { $sort: { date: -1 } },
+      { $sort: { date: 1 } },
 
       // group by year+month and push the already-projected docs
       {
@@ -63,7 +63,7 @@ export async function GET() {
  },
 
       // sort groups (defensive)
-      { $sort: { "_id.year": -1, "_id.month": -1 } },
+      { $sort: { "_id.year": 1, "_id.month": 1 } },
 
       // reshape for client-friendly output
       {

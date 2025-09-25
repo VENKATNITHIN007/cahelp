@@ -62,8 +62,8 @@ export default function DueDetailPage() {
 
   const isPending = due.status === "pending";
   const statusPillClass = isPending
-    ? "bg-amber-50 text-amber-800 ring-amber-100"
-    : "bg-green-50 text-green-800 ring-green-100";
+    ? "bg-amber-50 text-amber-800 ring-1 ring-amber-100"
+    : "bg-green-50 text-green-800 ring-1 ring-green-100";
   const statusIcon = isPending ? (
     <Clock className="text-amber-500" size={18} />
   ) : (
@@ -100,14 +100,14 @@ export default function DueDetailPage() {
     <div className="p-6">
       <div className="mx-auto max-w-3xl">
         {/* header */}
-        <div className="flex items-start justify-between gap-4 mb-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
           <div className="flex items-center gap-3">
             <h1 className="text-2xl font-semibold">Due details</h1>
           </div>
 
           {/* edit/delete actions */}
           <div className="flex items-center gap-2">
-            <DueDateFormDialog due={due}></DueDateFormDialog>
+            <DueDateFormDialog due={due} />
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -141,10 +141,10 @@ export default function DueDetailPage() {
 
         {/* main card */}
         <Card>
-          <CardContent className="">
+          <CardContent className="p-0">
             {/* Due info section */}
-            <div className="p-6 bg-gray-100">
-              <div className="flex items-start justify-between gap-4">
+            <div className="p-6 bg-gray-50">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="min-w-0">
                   <h2 className="text-xl text-amber-700 font-semibold leading-tight truncate">
                     {due.title}
@@ -160,7 +160,9 @@ export default function DueDetailPage() {
 
                 <div className="flex-shrink-0 flex flex-col items-end gap-3">
                   <div
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ring-1 ${statusPillClass}`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusPillClass}`}
+                    role="status"
+                    aria-label={`status ${due.status ?? "pending"}`}
                   >
                     <span className="mr-2">{statusIcon}</span>
                     <span className="capitalize">
@@ -177,14 +179,13 @@ export default function DueDetailPage() {
             </div>
 
             {/* divider */}
-            <div className="h-px bg-slate-600" />
+            <div className="h-px bg-slate-200" />
 
             {/* Client info section */}
             <div className="p-6">
-              <div className="flex items-start gap-3">
-              
-                <div>
-                  <div className="text-sm font-medium">
+              <div className="flex flex-col md:flex-row md:items-start gap-6">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">
                     {client.name ?? "—"}
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -193,12 +194,12 @@ export default function DueDetailPage() {
 
                   <div className="mt-3 space-y-2 text-sm text-slate-700">
                     <div className="flex items-center gap-2">
-                      <Phone className="text-sky-500" size={14} />
-                      <span>{client.phoneNumber || "no phonenumber"}</span>
+                      <Phone className="text-sky-500 flex-shrink-0" size={14} />
+                      <span className="truncate">{client.phoneNumber || "no phonenumber"}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Mail className="text-rose-500" size={14} />
-                      <span>{client.email|| "no email"}</span>
+                      <Mail className="text-rose-500 flex-shrink-0" size={14} />
+                      <span className="truncate">{client.email || "no email"}</span>
                     </div>
                   </div>
 
@@ -209,24 +210,33 @@ export default function DueDetailPage() {
                       variant="outline"
                       onClick={() => setContactOpen(!contactOpen)}
                       className="flex items-center gap-2 text-sky-700 border-sky-300 hover:bg-sky-50"
+                      aria-expanded={contactOpen}
+                      aria-controls="contact-panel"
                     >
                       <MessageCircle size={14} /> Contact
                     </Button>
                   </div>
+                </div>
 
+                {/* Contact panel (keeps below on small, side-by-side on larger) */}
+                <div className="md:w-96 w-full">
                   {contactOpen && (
-                    <div className="mt-4 border rounded-md p-3 space-y-2">
+                    <div
+                      id="contact-panel"
+                      className="mt-4 border rounded-md p-3 space-y-3 bg-white"
+                      role="region"
+                    >
                       <textarea
                         readOnly
                         rows={5}
-                        className="w-full min-w-[300px] md:min-w-[500px] rounded-md border p-3 text-sm"
-                        value={message} 
+                        className="w-full rounded-md border p-3 text-sm whitespace-pre-wrap"
+                        value={message}
                       />
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           size="sm"
                           onClick={copyToClipboard}
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-2 w-full sm:w-auto"
                         >
                           <CopyIcon size={14} /> Copy
                         </Button>
@@ -236,7 +246,7 @@ export default function DueDetailPage() {
                               "Request"
                             )}&body=${encodeURIComponent(message)}`}
                           >
-                            <Button size="sm" variant="outline" className="w-full">
+                            <Button size="sm" variant="outline" className="w-full sm:w-auto">
                               Email
                             </Button>
                           </Link>
@@ -247,7 +257,7 @@ export default function DueDetailPage() {
                               message
                             )}`}
                           >
-                            <Button size="sm" variant="outline" className="w-full">
+                            <Button size="sm" variant="outline" className="w-full sm:w-auto">
                               WhatsApp
                             </Button>
                           </Link>
@@ -261,9 +271,12 @@ export default function DueDetailPage() {
           </CardContent>
         </Card>
       </div>
-      <Link href="/app/duedates" className="margin-10">
-        <Button variant="outline">← Back to duedates</Button>
-      </Link>
+
+      <div className="mt-6">
+        <Link href="/app/duedates" className="inline-block">
+          <Button variant="outline">← Back to duedates</Button>
+        </Link>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useFetchDashboard } from "@/hooks/dashboard/counts";
-import { AlertTriangle, Clock, CheckCircle } from "lucide-react";
+import { AlertTriangle, Clock, CheckCircle, } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function DashboardCountsPage() {
@@ -12,6 +12,15 @@ export default function DashboardCountsPage() {
   const safeCount = (key: string) =>
     isLoading ? "…" : isError || !counts ? 0 : (counts as any)[key] ?? 0;
 
+  // top summary: only these two
+  const summaryItems = [
+    
+    { key: "totalClients", label: "Total Clients" },
+    { key: "pendingDues", label: "Pending Dues" },
+
+  ];
+
+  // dashboard colored cards
   const items = [
     {
       key: "urgent",
@@ -29,18 +38,18 @@ export default function DashboardCountsPage() {
       value: safeCount("passed"),
       link: "/app/dashboard/work?filter=passed",
     },
-    {
-      key: "pending",
-      label: "Pending",
-      color: "bg-yellow-500",
-      icon: Clock,
-      value: safeCount("pending"),
-      link: "/app/dashboard/pending",
-    },
+    // {
+    //   key: "pending",
+    //   label: "Pending Due Dates",
+    //   color: "bg-sky-600",
+    //   icon: Users,
+    //   value: safeCount("pending"),
+    //   link: "/app/duedates?filter=pending",
+    // },
     {
       key: "completed",
       label: "Completed",
-      color: "bg-green-500",
+      color: "bg-green-600",
       icon: CheckCircle,
       value: safeCount("completed"),
       link: "/app/dashboard/work?filter=completed",
@@ -48,40 +57,61 @@ export default function DashboardCountsPage() {
   ];
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      <h6 className="text-2xl md:text-3xl font-semibold mb-4">Dashboard</h6>
+    <div>
+      <h1 className="text-2xl md:text-3xl font-semibold mb-4">Dashboard</h1>
 
-      {/* Row 1: plain inline info (side by side, not stacked) */}
-      <div className="flex justify-around text-lg font-semibold">
-        <div className="flex items-center gap-2  bg-slate-200">
-          <span className="text-gray-800" >Total Clients:</span>
-          <span>{safeCount("totalClients")}</span>
-        </div>
-        <div className="flex items-center gap-2  bg-slate-200">
-          <span className="text-gray-800 ">Total Due Dates:</span>
-          <span>{safeCount("totalDueDates")}</span>
+      {/* Top summary counts (responsive) */}
+      <div className="mb-6">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+          {summaryItems.map((c) => {
+            const val = safeCount(c.key);
+            return (
+              <div
+                key={c.key}
+                className="flex items-center justify-between gap-3 bg-slate-200 rounded-md px-3 py-2 min-w-0 flex-1"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm text-gray-700 truncate">{c.label}</div>
+                </div>
+                <div className="text-lg md:text-xl font-semibold ml-2 flex-shrink-0">
+                  {val}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       {/* Row 2+: colored clickable cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {items.map((item) => {
           const Icon = item.icon;
+          let isActive = false;
+          if (typeof window !== "undefined") {
+            try {
+              isActive = window.location.pathname.startsWith(item.link.split("?")[0]);
+            } catch {
+              isActive = false;
+            }
+          }
+
           return (
-            <Link key={item.key} href={item.link}>
-              <div
-                className={cn(
-                  "rounded-lg p-4 h-24 flex flex-col justify-between cursor-pointer",
-                  "transition hover:opacity-90 active:scale-95 text-white",
-                  item.color
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.label}</span>
-                  <Icon className="h-4 w-4 opacity-80" />
-                </div>
-                <div className="text-2xl font-bold">{item.value}</div>
+            <Link
+              key={item.key}
+              href={item.link}
+              aria-label={`${item.label} - ${item.value}`}
+              className={cn(
+                "rounded-lg p-4 h-20 md:h-24 flex flex-col justify-between cursor-pointer",
+                "transition hover:opacity-90 active:scale-95 text-white",
+                item.color
+              )}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium truncate">{item.label}</span>
+                <Icon className="h-4 w-4 opacity-80" />
               </div>
+              <div className="text-2xl font-bold">{item.value}</div>
             </Link>
           );
         })}

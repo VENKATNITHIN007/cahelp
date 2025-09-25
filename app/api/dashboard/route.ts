@@ -24,14 +24,13 @@ export async function GET() {
     const totalClientsPromise = Client.countDocuments({ userId });
 
     // Dashboard counts for due dates
-    const dashboardCountsPromise = DueDate.aggregate([
+    const dashboardCountsPromise = await DueDate.aggregate([
       { $match: { userId } },
       {
         $facet: {
-          totalDueDates: [{ $count: "count" }],
+          pendingDues: [{ $match: { status: "pending" } }, { $count: "count" }],
           urgent: [{ $match: { date: { $gte: today, $lte: threeDaysLater },status: "pending" }, }, { $count: "count" }],
           passed: [{ $match: { date: { $lt: today },status: "pending" } }, { $count: "count" }],
-          pending: [{ $match: { status: "pending" } }, { $count: "count" }],
           completed: [{ $match: { status: "completed" } }, { $count: "count" }]
         }
       }
@@ -43,10 +42,9 @@ export async function GET() {
 
     return NextResponse.json({
       totalClients: totalClients || 0,
-      totalDueDates: counts.totalDueDates[0]?.count || 0,
+      pendingDues: counts.pendingDues[0]?.count || 0,
       urgent: counts.urgent[0]?.count || 0,
       passed: counts.passed[0]?.count || 0,
-      pending: counts.pending[0]?.count || 0,
       completed: counts.completed[0]?.count || 0
     });
 

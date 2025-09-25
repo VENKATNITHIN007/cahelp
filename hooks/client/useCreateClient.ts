@@ -18,8 +18,15 @@ export function useCreateClient() {
         credentials: "include",
         body: JSON.stringify(data),
       })
-      if (!res.ok) throw await res.json()
-      return res.json() as Promise<ClientType[]>
+      const payload = await res.json().catch(() => null)
+      if (!res.ok) {
+        const err = new Error(payload?.message ?? `Request failed: ${res.status}`)
+        ;(err as any).data = payload
+        ;(err as any).status = res.status
+        throw err
+      }
+
+      return payload as ClientType[]
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.clients.all })

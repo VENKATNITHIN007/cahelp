@@ -1,48 +1,69 @@
-// components/auth/LogoutConfirmButton.tsx
 "use client";
 
-import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import {
   AlertDialog,
-  AlertDialogTrigger,
+  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
 import { Button } from "@/components/ui/button";
 
 export default function LogoutConfirmButton() {
   const router = useRouter();
+  const qc = useQueryClient();
+  const [loading, setLoading] = useState(false);
 
   const doLogout = async () => {
+    setLoading(true);
     try {
+      // clear React Query cache first
+      qc.clear();
+
+      // next-auth sign out
       await signOut({ callbackUrl: "/" });
-      router.replace("/"); // fallback
+
+      // fallback redirect
+      router.replace("/");
     } catch (err) {
       console.error("Logout error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">Logout</Button>
+        <Button variant="destructive" disabled={loading}>
+          {loading ? "Logging out..." : "Logout"}
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Logout</AlertDialogTitle>
+          <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to log out of your account?
+            You will be signed out of your account and redirected to the home page.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={doLogout}>Logout</AlertDialogAction>
+          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <Button
+            variant="destructive"
+            onClick={doLogout}
+            disabled={loading}
+          >
+            {loading ? "Logging out..." : "Logout"}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

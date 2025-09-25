@@ -44,6 +44,19 @@ export default function DueDatesPage() {
       : status === "pending"
       ? "text-yellow-600"
       : "text-yellow-600"
+      
+      
+function formatFriendly(dateStr?: string) {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 
   return (
    <div className="p-4">
@@ -66,25 +79,25 @@ export default function DueDatesPage() {
                 <CardContent className="p-4 space-y-2">
                   <p className="font-semibold text-lg">{d.title}</p>
                   <p className="text-sm text-gray-600">Client: {d.clientName ?? "—"}</p>
-                  <p className="text-sm text-gray-600">Date: {new Date(d.date).toLocaleDateString()}</p>
+                  <p className="text-sm text-gray-600">Date: {formatFriendly(d.date)}</p>
 
                   {/* merged select = status */}
-                  <select
-                    value={d.status ?? "pending"}
-                    onChange={(e) => onStatusChange(d._id, e.target.value)}
-                    className={`rounded-md border px-2 py-1 text-sm font-medium ${statusColorClass(d.status)}`}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                  </select>
+                  <div className="flex flex-row flex-wrap items-center gap-2 pt-2">
+  <Link href={`/app/duedates/${d._id}`}>
+    <Button size="sm" variant="outline">View</Button>
+  </Link>
 
-                  <div className="flex gap-2 pt-2">
-                    <Link href={`/app/duedates/${d._id}`}>
-                      <Button size="sm" variant="outline">View</Button>
-                    </Link>
-
+  <select
+    value={d.status ?? "pending"}
+    onChange={(e) => onStatusChange(d._id, e.target.value)}
+    className={`rounded-md border px-2 py-1 text-sm font-medium w-auto min-w-[6rem] flex-shrink-0 ${statusColorClass(d.status)}`}
+  >
+    <option value="pending">Pending</option>
+    <option value="completed">Completed</option>
+  </select>
+</div>
                     
-                  </div>
+              
                 </CardContent>
               </Card>
             ))}
@@ -108,7 +121,7 @@ export default function DueDatesPage() {
                     <tr key={d._id} className="border-b">
                       <td className="p-3">{d.title}</td>
                       <td className="p-3">{d.clientName ?? "—"}</td>
-                      <td className="p-3">{new Date(d.date).toLocaleDateString()}</td>
+                      <td className="p-3">{formatFriendly(d.date)}</td>
                       <td className="p-3">
                         <select
                           value={d.status ?? "pending"}

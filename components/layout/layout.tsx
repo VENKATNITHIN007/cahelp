@@ -5,7 +5,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import Sidebar from "./sidebar/sidebar";
 import Topbar from "./topbar/topbar";
 import BottomBar from "./bottombar/bottombar";
-
+import MobileHeader from "./mobileheader/mobileheader";
 
 
 type AppLayoutProps = {
@@ -53,8 +53,12 @@ export default function AppLayout({ children, persistSidebar = false }: AppLayou
           onToggleSidebar={toggleSidebar}
           sidebarVisible={sidebarVisible}
         />
+        {/* mobile header */}
+<div className="md:hidden">
+  <MobileHeader />
+</div>
 
-        <main className="flex-1 p-6 overflow-auto transition-all duration-150">
+        <main className="flex-1 p-6 overflow-auto transition-all duration-150 pb-20 md:pb-6">
           {children}
         </main>
       </div>
