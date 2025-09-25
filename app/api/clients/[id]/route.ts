@@ -8,14 +8,14 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 // get single client
-export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function GET(req: NextRequest, ctx: RouteContext<"/api/clients/[id]">) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } =  await params;
+    const { id } =  await ctx.params;
 
     await connectionToDatabase();
 
@@ -34,14 +34,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Failed to fetch client" }, { status: 500 });
   }
 }
-export async function PATCH(req: NextRequest,  { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(req: NextRequest,  ctx: RouteContext<"/api/clients/[id]">) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } =  await params;
+    const { id } =  await ctx.params;
      const body = await req.json();
      const parsed = clientFormSchema.safeParse(body);
      
@@ -77,14 +77,14 @@ export async function PATCH(req: NextRequest,  { params }: { params: Promise<{ i
 }
 
 // Delete a client
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest,ctx: RouteContext<"/api/clients/[id]">) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await params;
+    const { id } = await ctx.params;
 
     await connectionToDatabase();
 

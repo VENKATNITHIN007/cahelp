@@ -54,13 +54,3 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to fetch urgent dates" }, { status: 500 });
   }
 }
-
-// Get not ready due dates (current month)
-
-
-// Get ready due dates (current month)
-
-
-// Get completed due dates (current month)
-
-// Get passed due dates (date < today)
