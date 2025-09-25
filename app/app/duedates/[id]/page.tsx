@@ -57,8 +57,8 @@ export default function DueDetailPage() {
 
   const [contactOpen, setContactOpen] = useState(false);
 
-  if (isLoading) return <div className="p-6">Loading…</div>;
-  if (!due) return <div className="p-6 text-red-600">Due date not found</div>;
+  if (isLoading) return <div className="p-4 sm:p-6">Loading…</div>;
+  if (!due) return <div className="p-4 sm:p-6 text-red-600">Due date not found</div>;
 
   const isPending = due.status === "pending";
   const statusPillClass = isPending
@@ -97,39 +97,45 @@ export default function DueDetailPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="mx-auto max-w-3xl">
-        {/* header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
+    <div className="min-h-screen bg-gray-50/30 p-4 sm:p-6">
+      <div className="mx-auto max-w-4xl">
+        {/* Back button - Mobile first */}
+        
+
+        {/* Header section */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-semibold">Due details</h1>
+            <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Due details</h1>
           </div>
 
-          {/* edit/delete actions */}
-          <div className="flex items-center gap-2">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <DueDateFormDialog due={due} />
-
+            
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex items-center gap-2 border-rose-400 text-rose-900 hover:bg-rose-50"
+                  className="flex-1 sm:flex-initial flex items-center gap-2 border-rose-400 text-rose-900 hover:bg-rose-50"
                 >
-                  <Trash2 size={14} />
-                  <span className="hidden sm:inline">Delete</span>
+                  <Trash2 size={16} />
+                  <span className="sm:hidden">Delete</span>
+                  <span className="hidden sm:inline">Delete Due</span>
                 </Button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent>
+              <AlertDialogContent className="max-w-[95vw] sm:max-w-md">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete {due.title}?</AlertDialogTitle>
+                  <AlertDialogTitle className="text-lg sm:text-xl">
+                    Delete {due.title}?
+                  </AlertDialogTitle>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel className="m-0 sm:m-0">Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDelete}
-                    className="bg-rose-600 text-white hover:bg-rose-700"
+                    className="bg-rose-600 text-white hover:bg-rose-700 m-0 sm:m-0"
                   >
                     Delete
                   </AlertDialogAction>
@@ -139,26 +145,26 @@ export default function DueDetailPage() {
           </div>
         </div>
 
-        {/* main card */}
-        <Card>
+        {/* Main card */}
+        <Card className="shadow-sm border border-slate-200">
           <CardContent className="p-0">
             {/* Due info section */}
-            <div className="p-6 bg-gray-50">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="min-w-0">
-                  <h2 className="text-xl text-amber-700 font-semibold leading-tight truncate">
+            <div className="p-4 sm:p-6 bg-white sm:bg-gray-50 rounded-t-lg">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg sm:text-xl text-amber-700 font-semibold leading-tight break-words">
                     {due.title}
                   </h2>
-                  <p className="mt-3 text-muted-foreground text-sm whitespace-pre-wrap leading-relaxed">
+                  <p className="mt-2 sm:mt-3 text-muted-foreground text-sm whitespace-pre-wrap leading-relaxed">
                     {due.description ?? (
-                      <span className="text-muted-foreground">
+                      <span className="text-muted-foreground italic">
                         No description provided
                       </span>
                     )}
                   </p>
                 </div>
 
-                <div className="flex-shrink-0 flex flex-col items-end gap-3">
+                <div className="flex-shrink-0 flex flex-row sm:flex-col items-start sm:items-end gap-3 w-full sm:w-auto">
                   <div
                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusPillClass}`}
                     role="status"
@@ -170,84 +176,94 @@ export default function DueDetailPage() {
                     </span>
                   </div>
 
-                  <div className="text-sm text-muted-foreground text-right">
-                    <div className="text-xs">Due</div>
-                    <div className="font-medium">{formatFriendly(due.date)}</div>
+                  <div className="text-sm text-muted-foreground text-right ml-auto sm:ml-0">
+                    <div className="text-xs">Due Date</div>
+                    <div className="font-medium text-base">{formatFriendly(due.date)}</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* divider */}
+            {/* Divider */}
             <div className="h-px bg-slate-200" />
 
             {/* Client info section */}
-            <div className="p-6">
-              <div className="flex flex-col md:flex-row md:items-start gap-6">
+            <div className="p-4 sm:p-6 bg-white">
+              <div className="flex flex-col xl:flex-row xl:items-start gap-4 sm:gap-6">
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">
-                    {client.name ?? "—"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {client.type ?? "—"}
-                  </div>
-
-                  <div className="mt-3 space-y-2 text-sm text-slate-700">
-                    <div className="flex items-center gap-2">
-                      <Phone className="text-sky-500 flex-shrink-0" size={14} />
-                      <span className="truncate">{client.phoneNumber || "no phonenumber"}</span>
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-500 mb-1">Client Information</h3>
+                    <div className="text-base font-medium truncate">
+                      {client.name ?? "—"}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="text-rose-500 flex-shrink-0" size={14} />
-                      <span className="truncate">{client.email || "no email"}</span>
+                    <div className="text-sm text-muted-foreground capitalize">
+                      {client.type ?? "—"}
                     </div>
                   </div>
 
-                  {/* Contact functionality */}
-                  <div className="mt-4">
+                  <div className="space-y-3 text-sm text-slate-700">
+                    <div className="flex items-center gap-3">
+                      <Phone className="text-sky-500 flex-shrink-0" size={16} />
+                      <span className="truncate">{client.phoneNumber || "No phone number"}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Mail className="text-rose-500 flex-shrink-0" size={16} />
+                      <span className="truncate">{client.email || "No email"}</span>
+                    </div>
+                  </div>
+
+                  {/* Contact button */}
+                  <div className="mt-4 sm:mt-6">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setContactOpen(!contactOpen)}
-                      className="flex items-center gap-2 text-sky-700 border-sky-300 hover:bg-sky-50"
+                      className="flex items-center gap-2 text-sky-700 border-sky-300 hover:bg-sky-50 w-full sm:w-auto"
                       aria-expanded={contactOpen}
                       aria-controls="contact-panel"
                     >
-                      <MessageCircle size={14} /> Contact
+                      <MessageCircle size={16} /> 
+                      <span>{contactOpen ? "Hide Contact" : "Contact Client"}</span>
                     </Button>
                   </div>
                 </div>
 
-                {/* Contact panel (keeps below on small, side-by-side on larger) */}
-                <div className="md:w-96 w-full">
+                {/* Contact panel */}
+                <div className="xl:w-96 w-full">
                   {contactOpen && (
                     <div
                       id="contact-panel"
-                      className="mt-4 border rounded-md p-3 space-y-3 bg-white"
+                      className="mt-4 border rounded-lg p-3 sm:p-4 space-y-3 bg-white shadow-sm"
                       role="region"
                     >
-                      <textarea
-                        readOnly
-                        rows={5}
-                        className="w-full rounded-md border p-3 text-sm whitespace-pre-wrap"
-                        value={message}
-                      />
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-2 block">
+                          Message Template
+                        </label>
+                        <textarea
+                          readOnly
+                          rows={5}
+                          className="w-full rounded-md border p-3 text-sm whitespace-pre-wrap resize-none focus:outline-none focus:ring-2 focus:ring-sky-200"
+                          value={message}
+                        />
+                      </div>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <Button
                           size="sm"
                           onClick={copyToClipboard}
-                          className="flex items-center gap-2 w-full sm:w-auto"
+                          className="flex items-center gap-2 flex-1 sm:flex-initial"
                         >
-                          <CopyIcon size={14} /> Copy
+                          <CopyIcon size={16} /> Copy Text
                         </Button>
                         {client.email && (
                           <Link
                             href={`mailto:${client.email}?subject=${encodeURIComponent(
-                              "Request"
+                              `Regarding: ${due.title}`
                             )}&body=${encodeURIComponent(message)}`}
+                            className="flex-1 sm:flex-initial"
                           >
-                            <Button size="sm" variant="outline" className="w-full sm:w-auto">
-                              Email
+                            <Button size="sm" variant="outline" className="w-full">
+                              Send Email
                             </Button>
                           </Link>
                         )}
@@ -256,8 +272,11 @@ export default function DueDetailPage() {
                             href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
                               message
                             )}`}
+                            className="flex-1 sm:flex-initial"
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            <Button size="sm" variant="outline" className="w-full sm:w-auto">
+                            <Button size="sm" variant="outline" className="w-full">
                               WhatsApp
                             </Button>
                           </Link>
@@ -270,13 +289,18 @@ export default function DueDetailPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      <div className="mt-6">
-        <Link href="/app/duedates" className="inline-block">
-          <Button variant="outline">← Back to duedates</Button>
-        </Link>
+        {/* Bottom back button for mobile */}
+        
       </div>
+      <div className="mt-6 ">
+          <Link href="/app/duedates" className="inline-block w-full">
+            <Button variant="outline" >
+              ← Back to duedates
+            </Button>
+          </Link>
+        </div>
     </div>
+    
   );
 }

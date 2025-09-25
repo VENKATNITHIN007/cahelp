@@ -36,7 +36,9 @@ export async function GET() {
           title: 1,
           date: 1,
           status: 1,
-          clientName:"$client.name"
+          clientName:"$client.name",
+          phoneNumber:"$client.phoneNumber",
+          email:"$client.email"
         },
       },
       { $sort: { date: 1 } },

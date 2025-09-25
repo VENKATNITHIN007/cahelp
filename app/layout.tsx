@@ -1,25 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Providers from "./providers";
-import localFont from 'next/font/local';
 
-export const geist = localFont({
-  src: [
-    { path: '/fonts/Geist-Regular.woff2', weight: '400', style: 'normal' },
-    { path: '/fonts/Geist-Bold.woff2', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-geist',
-  display: 'swap',
-});
-
-export const geistMono = localFont({
-  src: [
-    { path: '/fonts/GeistMono-Regular.woff2', weight: '400', style: 'normal' },
-    { path: '/fonts/GeistMono-Bold.woff2', weight: '700', style: 'normal' },
-  ],
-  variable: '--font-geist-mono',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -34,8 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geist.variable} ${geistMono.variable} antialiased`}
-      >
+        className="antialiased">
         <Providers>
             {children}
           </Providers>

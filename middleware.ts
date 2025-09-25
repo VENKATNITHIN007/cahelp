@@ -10,17 +10,18 @@ export default withAuth(
     callbacks: {
       authorized({ req, token }) {
         const { pathname } = req.nextUrl;
-        if (
-          pathname.startsWith("/api/auth") ||
-          pathname === "/login" ||
-          pathname === "/register"
-        )
-          {return true;}
-    
+        if (pathname.startsWith("/api/auth")) return true;
 
-        // if (pathname === "/" || pathname.startsWith("/api/")) {
-        //   return true;
-        // }
+        // Explicit public pages that should NOT require auth
+        const publicPages = [
+          "/",         // homepage
+          "/login",    // login page
+          "/contactus" // contact page
+        ];
+
+        if (publicPages.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+          return true;
+        }
 
         return !!token
       },

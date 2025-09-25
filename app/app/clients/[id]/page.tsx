@@ -87,7 +87,7 @@ export default function ClientDetailPage() {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Delete {client.name}?
+                    Delete {client.name} ? It will delete all duedates related to client
                   </AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

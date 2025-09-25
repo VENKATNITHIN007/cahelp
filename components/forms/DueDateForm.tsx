@@ -171,7 +171,13 @@ export default function DueDateForm({
           )}
         />
 
-        <Button type="submit">{id ? "Update Due" : "Create Due"}</Button>
+        <Button type="submit"  disabled={updateMutation.isPending || createMutation.isPending}>{id
+            ? updateMutation.isPending
+              ? "Updating..."
+              : "Update Duedate"
+            : createMutation.isPending
+            ? "Creating..."
+            : "Create DueDate"}</Button>
       </form>
     </Form>
   )

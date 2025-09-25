@@ -1,5 +1,6 @@
 
 import "../globals.css";
+
 import AppLayout from "@/components/layout/layout";
 
 
@@ -11,12 +12,11 @@ export default function ShellLayout({
 }>) {
   return (
     
-
-            <AppLayout>
+        <AppLayout>
                   {children}
             </AppLayout>
-          
-         
       
+            
+          
   );
 }

@@ -58,7 +58,7 @@ export default function AppLayout({ children, persistSidebar = false }: AppLayou
   <MobileHeader />
 </div>
 
-        <main className="flex-1 p-6 overflow-auto transition-all duration-150 pb-20 md:pb-6">
+        <main className="flex-1 p-6 overflow-auto transition-colors duration-150 pb-20 md:pb-6">
           {children}
         </main>
       </div>

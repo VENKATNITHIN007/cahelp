@@ -29,6 +29,7 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "completed", label: "Completed" },
 ];
 
+
 export default function WorkPage() {
   const search = useSearchParams();
   const router = useRouter();
@@ -85,7 +86,7 @@ export default function WorkPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-semibold">Work Items</h1>
+        <h1 className="text-2xl font-semibold">DueDates</h1>
 
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
@@ -191,7 +192,7 @@ export default function WorkPage() {
                           value={generateMessage(d)}
                         />
                         <div className="flex flex-wrap gap-2">
-                          <Button size="sm" onClick={() => navigator.clipboard.writeText(generateMessage(d))}>
+                          <Button size="sm" onClick={() => navigator.clipboard.writeText(generateMessage(d)) }>
                             Copy
                           </Button>
                           {d.email && (
@@ -342,6 +343,11 @@ export default function WorkPage() {
           </div>
         </>
       )}
+      <div className="pt-3">
+              <Link href="/app/dashboard" className="pt-4">
+                <Button variant="outline">← Back to Dashboard</Button>
+              </Link>
+            </div>
     </div>
   );
 }
