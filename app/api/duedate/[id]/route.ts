@@ -21,7 +21,7 @@ export async function GET(
 
     await connectionToDatabase();
 
-    const { id } = await  context.params;
+    const { id } = context.params;
 
 
     const dueDate = await DueDate.findOne({ _id: id, userId: session.user.id })
@@ -59,7 +59,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await  context.params;
+    const { id } = context.params;
     const body = await req.json();
 
     // validate partial updates
@@ -107,7 +107,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await context.params;
+    const { id } =  context.params;
 
     await connectionToDatabase();
 

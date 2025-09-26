@@ -15,7 +15,7 @@ export async function GET(req: NextRequest,   context: { params: { id: string } 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } =  await context.params;
+    const { id } =  context.params;
 
     await connectionToDatabase();
 
@@ -41,7 +41,7 @@ export async function PATCH(req: NextRequest,    context: { params: { id: string
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } =  await context.params;
+    const { id } =  context.params;
      const body = await req.json();
      const parsed = clientFormSchema.safeParse(body);
      
@@ -84,7 +84,7 @@ export async function DELETE(req: NextRequest,  context: { params: { id: string 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = await context.params;
+    const { id } = context.params;
 
     await connectionToDatabase();
 
