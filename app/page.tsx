@@ -11,8 +11,8 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="max-w-2xl w-full text-center space-y-6">
-        <h1 className="text-4xl font-semibold tracking-tight text-slate-900">
-          CAHelp — Track dues. On time.
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900">
+           <span className="text-orange-400">Due</span>clock — Never miss A Duedate
         </h1>
         <p className="text-slate-600">
           One simple place to manage due dates and client follow-ups.

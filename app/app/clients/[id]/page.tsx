@@ -218,25 +218,38 @@ export default function ClientDetailPage() {
 
       {/* Pending Due Dates */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Pending Due Dates</h2>
+  <h2 className="text-lg font-semibold mb-4">Pending Due Dates</h2>
 
-        {client.dueDates.length === 0 ? (
-          <p className="text-muted-foreground">No pending due dates.</p>
-        ) : (
-          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {client.dueDates.map((due) => (
-              <Card key={due._id} className="p-3 shadow-sm bg-white border">
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-red-900 truncate">{due.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{formatFriendly(due.date)}</div>
-                  </div>
+  {(() => {
+    const pendingDueDates = client.dueDates.filter(
+      (due) => due.status === "pending"
+    );
+
+    if (pendingDueDates.length === 0) {
+      return <p className="text-muted-foreground">No pending due dates.</p>;
+    }
+
+    return (
+      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {pendingDueDates.map((due) => (
+          <Card key={due._id} className="p-3 shadow-sm bg-white border">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sm text-red-900 truncate">
+                  {due.title}
                 </div>
-              </Card>
-            ))}
-          </div>
-        )}
+                <div className="text-xs text-muted-foreground mt-1">
+                  {formatFriendly(due.date)}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
+    );
+  })()}
+</div>
+
 
       <div>
         <Link href="/app/clients">

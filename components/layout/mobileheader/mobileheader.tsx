@@ -14,7 +14,7 @@ export default function MobileHeader() {
        
       </button> */}
 
-      <div className="text-sm  font-semibold pl-2">Ca help</div>
+      <div className="text-sm  font-bold pl-2"><span className="text-orange-400">Due</span>clock</div>
 
       <button
         onClick={() => { /* navigate to profile */ }}

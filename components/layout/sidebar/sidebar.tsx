@@ -20,7 +20,7 @@ export default function Sidebar() {
   return (
     <aside className="hidden md:flex md:flex-col md:w-64 border-r bg-white">
       <div className="px-4 py-4 border-b flex items-center">
-        <div  className="text-lg font-semibold"  aria-label="Go to dashboard">Cahelp</div>
+        <div  className="text-lg font-bold"  aria-label="Go to dashboard"><span className="text-orange-400">Due</span>clock</div>
       </div>
 
       <nav className="flex-1 px-2 py-4 space-y-1" aria-label="Main navigation">
