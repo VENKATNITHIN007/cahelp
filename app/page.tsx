@@ -1,4 +1,3 @@
-// app/page.tsx (server component)
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
