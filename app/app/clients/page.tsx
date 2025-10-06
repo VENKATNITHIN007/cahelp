@@ -39,7 +39,7 @@ export default function ClientsPage() {
 
       {/* Mobile: Cards */}
       {/* Mobile: Cards */}
-<div className="grid gap-4 md:hidden px-4 pb-24"> 
+<div className="grid gap-4 md:hidden px-4 pb-28"> 
   {clients?.map((c) => (
     <Card key={c._id} className="w-full rounded-2xl shadow-md">
       <CardContent className="p-4 space-y-2">
