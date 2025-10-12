@@ -49,6 +49,7 @@ export default function RootLayout({
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://dueclock.in/" />
         <meta name="twitter:card" content="summary" />
+        
 
         {/* Google Analytics - only load config if MEASUREMENT_ID exists */}
         {MEASUREMENT_ID && (
@@ -64,6 +65,7 @@ export default function RootLayout({
                 gtag('js', new Date());
                 gtag('config', '${MEASUREMENT_ID}');
               `}
+
             </Script>
           </>
         )}
