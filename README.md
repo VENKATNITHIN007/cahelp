@@ -1,106 +1,113 @@
-✅ DUECLOCK — CA Due Date Tracking Web App
+📌 DueClock – CA Due Date Tracking App(Pwa)
 
-Problem:
-CAs repeatedly handle the same monthly due dates and struggle to track all clients and communicate deadlines using WhatsApp/Excel. No mobile-friendly compliance tool exists.
-
-so I Built a clean, mobile-first PWA that automates recurring due dates, manages clients, tracks compliance status, and communication easy all in one simple dashboard.
-
-🔗 Live Demo
-
-https://dueclock.in
-
-
-Tech Stacks used:
-
-Next.js (App Router)
-,React
-,TailwindCSS
-,MongoDB
-,NextAuth / Sessions
-,Middleware for protected routes
-,React Query (for server state + API fetching)
-,Zod (validation)
-,Fetch
-,cloud hosting on Vercel
-
----
-🔒 Authentication Flow (Simple Explanation)
-
-Uses session-based auth via NextAuth
-
-JWT used inside the session for API validation
-
-Middleware protects all dashboard routes
-
-Users must be logged in to access any data
+DueClock is a lightweight due-date tracking system for CA firms.
+It helps organize clients, firms, and compliance deadlines in one simple dashboard.
 
 ---
 
-🧪 Validation
+❓ Why I Built It
 
-All forms are validated using Zod, ensuring:
-
-Correct client details
-,Valid due date formats
-,Safe API requests
+Some CA firms even today use Excel or WhatsApp for recurring deadlines — unreliable and hard to manage,
+DueClock solves this by giving them an Organized workflow , Simple dashboard , Reliable due-date manager It is Built as an MVP to test real user needs.
 
 ---
 
-✨ Features
+🔗 Live Demo: https://dueclock.in
 
-👥 Client management
+Next.js + MongoDB + NextAuth + TailwindCSS + shadcn/ui + React Query + Zod — deployed on Vercel
 
-📝 Track compliance deadlines,automatic creating of next duedates
+---
 
-📊 Dashboard with all urgent,overdue,completed dates
+✨ MVP Features
 
-🔄 Automatic refetch using React Query
+⦁	Fast and secure login using google
 
-📱 Fully responsive UI using Tailwind
+⦁	Automatic next duedate creation after completing duedate
+
+⦁	Easy client communication using whatsapp or email
+
+⦁	It is Pwa, can be installed like normal app from browser
+
+
+---
+🟦 Why shadcn/ui (forms, dialogs, UI components)?
+
+It Works perfectly with React Hook Form, Great for MVP where time matters
+
+---
+
+🟧 Why React Query?
+
+I wanted fast reactive UI changes (toggle status) , react query is best for optimistic updates and saves lots of trouble in fetching response and manging error states
+
+---
+
+🟩 Why Zod?
+
+To validate client and duedates forms and while caching api response , its easy and saves lots of trouble form bad data 
+
+---
+
+🟨 Why Google Auth + JWT + Session?
+
+✔️ Session cookie → secure login for web dashboards
+
+✔️ JWT inside session → fast API authorization
+
+✔️ Google OAuth → easy one-click login
+
+---
 
 
 📂 Folder Structure
 
-  /app
-    /api
-      /auth 
-      /clients
-      /dashboard
-      /duedate
-      /user
-    /app   
-      /clients
-      /dashboard
-      /duedates
-      /user
-  /components
-    /auth
-    /dialogs
-    /duedatecontent
-    /forms
-    /layout
-    /ui
-  /hooks
-    /client
-    /dashboard
-    /due
-    /user
-  /lib
-    /auth
-    /db
-    /utils
-    /querykeys
-  /models
-    Audit.ts
-    Client.ts
-    DueDate.ts
-    Firm.ts
-    User.ts
-    Subscription.ts
-  /schemas
-    formschemas.ts
-    apischemas
-  /public
+
+ ├─ app/
+ │   ├─ api/
+ │   │   ├─ auth/
+ │   │   ├─ clients/
+ │   │   ├─ dashboard/
+ │   │   ├─ duedate/
+ │   │   └─ user/
+ │   ├─ clients/
+ │   ├─ dashboard/
+ │   ├─ duedates/
+ │   └─ user/
+ │
+ ├─ components/
+ │   ├─ auth/
+ │   ├─ dialogs/
+ │   ├─ duedatecontent/
+ │   ├─ forms/
+ │   ├─ layout/
+ │   └─ ui/        # shadcn components
+ │
+ ├─ hooks/
+ │   ├─ client/
+ │   ├─ dashboard/
+ │   ├─ due/
+ │   └─ user/
+ │
+ ├─ lib/
+ │   ├─ auth/
+ │   ├─ db/
+ │   ├─ utils/
+ │   └─ querykeys/
+ │
+ ├─ models/
+ │   ├─ User.ts
+ │   ├─ Client.ts
+ │   ├─ Firm.ts
+ │   ├─ DueDate.ts
+ │   ├─ Subscription.ts
+ │   └─ Audit.ts
+ │
+ ├─ schemas/
+ │   ├─ formschemas.ts
+ │   └─ apischemas.ts
+ │
+ └─ public/
+
 
 ---
 
@@ -109,61 +116,38 @@ Correct client details
 Create a .env file with:
 
 MONGODB_URI=
+
 NEXTAUTH_SECRET=
+
 NEXTAUTH_URL=
+
 GOOGLE_CLIENT_ID= (optional)
+
 GOOGLE_CLIENT_SECRET= (optional)
 
 (Replace with your own credentials.)
 
+----
+
 🚀 Installation
 
-1. Clone repository
-git clone https://github.com/yourusername/dueclock.git
+git clone https://github.com/VENKATNITHIN007/cahelp
 
-cd dueclock
-
-3. Install dependencies
+cd cahelp
 
 npm install
 
-4. Run development server
-
 npm run dev
 
-App will run at:
-http://localhost:3000
-
-
-📖 Usage Guide
-
-1. Register / Login with google
-  
-3. Add a clients
-4. Create Due Dates for each client
-5. View all deadlines on dashboard
-6. Edit / delete due dates anytime
-7. Search or filter upcoming deadlines
-8. contact using contact feature
-9. automatic next due date creation on completion of date for recurssive dates
-10.you can install dueclock add to home schreen feature form browser
-
+---
 
 📈 Future Improvements
+
 🔔 Automatic reminder notifications
-📱 Push notifications (PWA)
-👨‍💼 User roles (Admin / Staff)
-📨 Email reminders
-📅 Calendar view
-⚙ Folder-level permissions
-🧾 Client import/export via CSV
+
+👨‍💼 User roles (Admin / Staff) for firms
+
+🧾 Client import via CSV
 
 
----
 
-🪪 License
-
-MIT License
-
-
----
