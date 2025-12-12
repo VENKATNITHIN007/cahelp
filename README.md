@@ -13,23 +13,15 @@ https://dueclock.in
 Tech Stacks used:
 
 Next.js (App Router)
-React
-
-TailwindCSS
-
-MongoDB
-
-NextAuth / Sessions
-
-Middleware for protected routes
-
-React Query (for server state + API fetching)
-
-Zod (validation)
-
-Axios / Fetch
-
-cloud hosting on Vercel
+,React
+,TailwindCSS
+,MongoDB
+,NextAuth / Sessions
+,Middleware for protected routes
+,React Query (for server state + API fetching)
+.Zod (validation)
+.Fetch
+,cloud hosting on Vercel
 
 ---
 🔒 Authentication Flow (Simple Explanation)
