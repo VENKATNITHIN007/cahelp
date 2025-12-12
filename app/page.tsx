@@ -12,47 +12,43 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-white text-slate-900">
-<header className="sticky top-0 z-50 w-full bg-slate-800  border-b border-gray-200 shadow-sm">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex items-center justify-between h-14">
-      
-      {/* Bold Logo */}
-      <div className="text-xl font-bold leading-tight">
-        <span className="bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent">
+      <header className="sticky top-0 z-50 w-full bg-slate-800  border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+            {/* Bold Logo */}
+            <div className="text-xl font-bold leading-tight">
+              <span className="bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent">
                 Dueclock
               </span>
-      </div>
+            </div>
 
-      {/* Desktop Menu */}
-      <nav className="flex items-center space-x-8">
-        <a 
-          href="#features" 
-          className="font-semibold text-white  hover:text-blue-200 transition-colors text-sm"
-        >
-          Features
-        </a>
-        <a 
-          href="#how" 
-          className="font-semibold text-white hover:text-blue-200 transition-colors text-sm"
-        >
-          How It Works
-        </a>
-        <a 
-          href="#hire-me" 
-          className="hidden sm:block font-semibold text-white hover:text-blue-200 transition-colors text-sm"
-        >
-          Hire Me
-        </a>
-        <div className="hidden sm:block ml-4 ">
-          <SignInButton />
+            {/* Desktop Menu */}
+            <nav className="flex items-center space-x-8">
+              <a
+                href="#features"
+                className="font-semibold text-white  hover:text-blue-200 transition-colors text-sm"
+              >
+                Features
+              </a>
+              <a
+                href="#how"
+                className="font-semibold text-white hover:text-blue-200 transition-colors text-sm"
+              >
+                How It Works
+              </a>
+              <a
+                href="#hire-me"
+                className="hidden sm:block font-semibold text-white hover:text-blue-200 transition-colors text-sm"
+              >
+                Hire Me
+              </a>
+              <div className="hidden sm:block ml-4 ">
+                <SignInButton />
+              </div>
+            </nav>
+          </div>
         </div>
-      </nav>
-
-
-     
-    </div>
-  </div>
-</header>
+      </header>
 
       {/* HERO */}
       <section className="w-full bg-purple-200">
@@ -218,13 +214,14 @@ export default async function HomePage() {
                 Need a similar tool or website for your business?
               </h2>
               <p className="text-sm md:text-base text-slate-600">
-                I built Dueclock end-to-end: dashboard, filters,
-                recurring logic, CSV export and WhatsApp/email actions. If you
-                want a custom tool for your workflow, I can build it with the
-                same care.
+                I built Dueclock end-to-end: dashboard, filters, recurring
+                logic, CSV export and WhatsApp/email actions. If you want a
+                custom tool for your workflow, I can build it with the same
+                care.
               </p>
               <p className="text-sm md:text-base text-slate-600">
-                Good fit if you&apos;re someone looking for simple mvp to test your product within few days
+                Good fit if you&apos;re someone looking for simple mvp to test
+                your product within few days
               </p>
               <ul className="mt-3 space-y-2 text-sm md:text-[15px] text-slate-700">
                 <li>• authentication and panels</li>

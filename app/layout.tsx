@@ -1,12 +1,13 @@
-// app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Providers from "./providers";
 import Script from "next/script";
 import RegisterSW from "@/components/Register";
 
+// for google analytics
 const MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
+// for pwa
 export const metadata: Metadata = {
   title: "DueClock – Smart CA Due Date Tracker",
   description: "One simple place to manage due dates and client follow-ups.",
@@ -38,18 +39,33 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512x512.png" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/icon-192x192.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="512x512"
+          href="/icon-512x512.png"
+        />
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="canonical" href="https://dueclock.in/" />
 
         {/* Social preview (helps Google choose correct title/description) */}
-        <meta property="og:title" content="DueClock – Smart CA Due Date Tracker" />
-        <meta property="og:description" content="One simple place to manage due dates and client follow-ups." />
+        <meta
+          property="og:title"
+          content="DueClock – Smart CA Due Date Tracker"
+        />
+        <meta
+          property="og:description"
+          content="One simple place to manage due dates and client follow-ups."
+        />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://dueclock.in/" />
         <meta name="twitter:card" content="summary" />
-        
 
         {/* Google Analytics - only load config if MEASUREMENT_ID exists */}
         {MEASUREMENT_ID && (
@@ -65,7 +81,6 @@ export default function RootLayout({
                 gtag('js', new Date());
                 gtag('config', '${MEASUREMENT_ID}');
               `}
-
             </Script>
           </>
         )}

@@ -9,12 +9,7 @@ import { useFetchClientById } from "@/hooks/client/useFetchClientById";
 import { useDeleteClient } from "@/hooks/client/useDeleteClient";
 import { ClientFormDialog } from "@/components/dialogs/ClientFormDialog";
 
-import {
-  Phone,
-  Mail as MailIcon,
-  Copy,
-  MessageCircle,
-} from "lucide-react";
+import { Phone, Mail as MailIcon, Copy, MessageCircle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -45,8 +40,8 @@ function formatFriendly(dateStr?: string) {
 }
 
 export default function ClientDetailPage() {
-  const params= useParams();
-  const clientId= params.id as string
+  const params = useParams();
+  const clientId = params.id as string;
   const router = useRouter();
   const { data: client, isLoading } = useFetchClientById(clientId as string);
   const deleteMutation = useDeleteClient();
@@ -56,7 +51,9 @@ export default function ClientDetailPage() {
   if (isLoading) return <p className="p-6">Loading…</p>;
   if (!client) return <p className="p-6 text-red-600">Client not found</p>;
 
-  const message = `Hello ${client.name ?? "Client"},\n\nThis is a quick request for the details we need to proceed with your work. Please reply at your convenience.\n\nThanks.`;
+  const message = `Hello ${
+    client.name ?? "Client"
+  },\n\nThis is a quick request for the details we need to proceed with your work. Please reply at your convenience.\n\nThanks.`;
 
   const copyToClipboard = async () => {
     try {
@@ -70,7 +67,7 @@ export default function ClientDetailPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
       <DueDateFormDialog clientId={clientId} />
-      
+
       {/* Client Info Card */}
       <Card className="border rounded-xl shadow-md">
         <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -85,12 +82,15 @@ export default function ClientDetailPage() {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm">Delete</Button>
+                <Button variant="destructive" size="sm">
+                  Delete
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Delete {client.name} ? It will delete all duedates related to client
+                    Delete {client.name} ? It will delete all duedates related
+                    to client
                   </AlertDialogTitle>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -116,13 +116,13 @@ export default function ClientDetailPage() {
         <CardContent className="space-y-4">
           {/* Key details in a responsive row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
-            
-
             <div className="flex items-center gap-2 text-slate-700 min-w-0">
               <Phone size={18} className="text-green-500 flex-shrink-0" />
               <div className="truncate">
                 <div className="text-sm font-medium">Phone</div>
-                <div className="text-xs text-muted-foreground truncate">{client.phoneNumber ?? "—"}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {client.phoneNumber ?? "—"}
+                </div>
               </div>
             </div>
 
@@ -130,7 +130,9 @@ export default function ClientDetailPage() {
               <MailIcon size={18} className="text-rose-500 flex-shrink-0" />
               <div className="truncate">
                 <div className="text-sm font-medium">Email</div>
-                <div className="text-xs text-muted-foreground truncate">{client.email ?? "—"}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {client.email ?? "—"}
+                </div>
               </div>
             </div>
           </div>
@@ -173,7 +175,9 @@ export default function ClientDetailPage() {
 
                   {client.email && (
                     <a
-                      href={`mailto:${client.email}?subject=${encodeURIComponent(
+                      href={`mailto:${
+                        client.email
+                      }?subject=${encodeURIComponent(
                         "Quick request"
                       )}&body=${encodeURIComponent(message)}`}
                       target="_blank"
@@ -189,23 +193,24 @@ export default function ClientDetailPage() {
                     </a>
                   )}
 
-                  {client.phoneNumber && sanitizePhoneForWa(client.phoneNumber) && (
-                    <a
-                      href={`https://wa.me/${sanitizePhoneForWa(
-                        client.phoneNumber
-                      )}?text=${encodeURIComponent(message)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex items-center gap-2 hover:bg-slate-100"
+                  {client.phoneNumber &&
+                    sanitizePhoneForWa(client.phoneNumber) && (
+                      <a
+                        href={`https://wa.me/${sanitizePhoneForWa(
+                          client.phoneNumber
+                        )}?text=${encodeURIComponent(message)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
-                        <MessageCircle size={14} /> WhatsApp
-                      </Button>
-                    </a>
-                  )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex items-center gap-2 hover:bg-slate-100"
+                        >
+                          <MessageCircle size={14} /> WhatsApp
+                        </Button>
+                      </a>
+                    )}
                 </div>
               </div>
             )}
@@ -215,38 +220,39 @@ export default function ClientDetailPage() {
 
       {/* Pending Due Dates */}
       <div>
-  <h2 className="text-lg font-semibold mb-4">Pending Due Dates</h2>
+        <h2 className="text-lg font-semibold mb-4">Pending Due Dates</h2>
 
-  {(() => {
-    const pendingDueDates = client.dueDates.filter(
-      (due) => due.status === "pending"
-    );
+        {(() => {
+          const pendingDueDates = client.dueDates.filter(
+            (due) => due.status === "pending"
+          );
 
-    if (pendingDueDates.length === 0) {
-      return <p className="text-muted-foreground">No pending due dates.</p>;
-    }
+          if (pendingDueDates.length === 0) {
+            return (
+              <p className="text-muted-foreground">No pending due dates.</p>
+            );
+          }
 
-    return (
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {pendingDueDates.map((due) => (
-          <Card key={due._id} className="p-3 shadow-sm bg-white border">
-            <div className="flex items-start gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm text-red-900 truncate">
-                  {due.title}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {formatFriendly(due.date)}
-                </div>
-              </div>
+          return (
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {pendingDueDates.map((due) => (
+                <Card key={due._id} className="p-3 shadow-sm bg-white border">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm text-red-900 truncate">
+                        {due.title}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {formatFriendly(due.date)}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
             </div>
-          </Card>
-        ))}
+          );
+        })()}
       </div>
-    );
-  })()}
-</div>
-
 
       <div>
         <Link href="/app/clients">

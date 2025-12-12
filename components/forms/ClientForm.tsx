@@ -1,6 +1,6 @@
-"use client"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormField,
@@ -8,24 +8,23 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { toast } from "sonner"
-import { clientFormSchema, clientFormInput } from "@/schemas/formSchemas"
-import { useUpdateClient } from "@/hooks/client/useUpdateClient"
-import { useCreateClient } from "@/hooks/client/useCreateClient"
-import { useValidationErrorHandler } from "@/hooks/useValidationEHandle"
-
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { clientFormSchema, clientFormInput } from "@/schemas/formSchemas";
+import { useUpdateClient } from "@/hooks/client/useUpdateClient";
+import { useCreateClient } from "@/hooks/client/useCreateClient";
+import { useValidationErrorHandler } from "@/hooks/useValidationEHandle";
 
 export default function ClientForm({
   id,
   initialData,
-  onSuccess
+  onSuccess,
 }: {
-  id?: string
-  initialData?: Partial<clientFormInput>
-  onSuccess?:()=>void
+  id?: string;
+  initialData?: Partial<clientFormInput>;
+  onSuccess?: () => void;
 }) {
   const form = useForm<clientFormInput>({
     resolver: zodResolver(clientFormSchema),
@@ -35,12 +34,12 @@ export default function ClientForm({
       email: "",
     },
     mode: "onChange",
-  })
+  });
 
   // hooks
-  const updateMutation = useUpdateClient()
-  const createMutation = useCreateClient()
-  const handleError = useValidationErrorHandler(form)
+  const updateMutation = useUpdateClient();
+  const createMutation = useCreateClient();
+  const handleError = useValidationErrorHandler(form);
 
   const onSubmit = (values: clientFormInput) => {
     if (id) {
@@ -48,27 +47,27 @@ export default function ClientForm({
         { id, data: values },
         {
           onSuccess: () => {
-            toast("Client updated ✅")
-            onSuccess?.()
+            toast("Client updated ✅");
+            onSuccess?.();
           },
           onError: (e: any) => {
-            handleError(e)
+            handleError(e);
           },
         }
-      )
+      );
     } else {
       createMutation.mutate(values, {
         onSuccess: () => {
-          toast("Client created ✅")
-          form.reset()
-          onSuccess?.() // reset after creation
+          toast("Client created ✅");
+          form.reset();
+          onSuccess?.(); // reset after creation
         },
         onError: (e: any) => {
-          toast(e?.message || "Create failed ❌")
+          toast(e?.message || "Create failed ❌");
         },
-      })
+      });
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -89,8 +88,6 @@ export default function ClientForm({
             </FormItem>
           )}
         />
-
-       
 
         <FormField
           name="phoneNumber"
@@ -135,5 +132,5 @@ export default function ClientForm({
         </Button>
       </form>
     </Form>
-  )
+  );
 }

@@ -20,14 +20,18 @@ export default function ProfilePage() {
   if (!user)
     return (
       <div className="min-h-[220px] flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">Failed to load profile ❌</p>
+        <p className="text-sm text-muted-foreground">
+          Failed to load profile ❌
+        </p>
       </div>
     );
 
   return (
     <div className="max-w-lg mx-auto p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6 gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Profile</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
+          Profile
+        </h1>
         <div className="flex items-center gap-2">
           <UserFormDialog user={user} />
           <LogoutConfirmButton />
@@ -43,8 +47,12 @@ export default function ProfilePage() {
               <AvatarFallback>{user.name?.[0] ?? "U"}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg sm:text-xl font-semibold truncate">{user.name}</h2>
-              <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+              <h2 className="text-lg sm:text-xl font-semibold truncate">
+                {user.name}
+              </h2>
+              <p className="text-sm text-muted-foreground truncate">
+                {user.email}
+              </p>
             </div>
           </div>
 
@@ -60,7 +68,9 @@ export default function ProfilePage() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Mobile number</span>
-              <span className="truncate">{user.phoneNumber || "Add number"}</span>
+              <span className="truncate">
+                {user.phoneNumber || "Add number"}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Role</span>
@@ -69,9 +79,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Edit dialog (trigger left as-is) */}
-          
-            <UserFormDialog user={user} />
-          
+
+          <UserFormDialog user={user} />
         </CardContent>
       </Card>
     </div>

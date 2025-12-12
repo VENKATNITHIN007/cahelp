@@ -1,5 +1,3 @@
-// Centralized query keys for React Query
-
 export const queryKeys = {
   clients: {
     all: ["clients"] as const,

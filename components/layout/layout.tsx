@@ -7,16 +7,16 @@ import Topbar from "./topbar/topbar";
 import BottomBar from "./bottombar/bottombar";
 import MobileHeader from "./mobileheader/mobileheader";
 
-
 type AppLayoutProps = {
   children: ReactNode;
   // optional: when true, remembers user choice in localStorage
   persistSidebar?: boolean;
 };
 
-export default function AppLayout({ children, persistSidebar = false }: AppLayoutProps) {
-  
-
+export default function AppLayout({
+  children,
+  persistSidebar = false,
+}: AppLayoutProps) {
   // Visible by default
   const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
@@ -43,7 +43,7 @@ export default function AppLayout({ children, persistSidebar = false }: AppLayou
       {/* Sidebar visible only on md+ and only when sidebarVisible is true */}
       {sidebarVisible && (
         <aside className="hidden md:block md:w-64 border-r bg-white">
-          <Sidebar  />
+          <Sidebar />
         </aside>
       )}
 
@@ -54,9 +54,9 @@ export default function AppLayout({ children, persistSidebar = false }: AppLayou
           sidebarVisible={sidebarVisible}
         />
         {/* mobile header */}
-<div className="md:hidden">
-  <MobileHeader />
-</div>
+        <div className="md:hidden">
+          <MobileHeader />
+        </div>
 
         <main className="flex-1 p-6 overflow-auto transition-colors duration-150 pb-20 md:pb-6">
           {children}
@@ -65,7 +65,7 @@ export default function AppLayout({ children, persistSidebar = false }: AppLayou
 
       {/* Mobile bottom bar */}
       <div className="md:hidden">
-        <BottomBar  />
+        <BottomBar />
       </div>
     </div>
   );

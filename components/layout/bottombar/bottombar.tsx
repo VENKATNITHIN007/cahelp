@@ -33,9 +33,7 @@ export default function BottomBar() {
               <span className="mt-1 text-[11px]">{l.label}</span>
             </Link>
           );
-        })}
-
-      
+        })}  
       </div>
     </nav>
   );

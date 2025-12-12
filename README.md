@@ -1,37 +1,175 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+✅ DUECLOCK — CA Due Date Tracking Web App
 
-## Getting Started
+Problem:
+CAs repeatedly handle the same monthly due dates and struggle to track all clients and communicate deadlines using WhatsApp/Excel. No mobile-friendly compliance tool exists.
 
-First, run the development server:
+so I Built a clean, mobile-first PWA that automates recurring due dates, manages clients, tracks compliance status, and communication easy all in one simple dashboard.
 
-```bash
+🔗 Live Demo
+
+https://dueclock.in
+
+
+Tech Stacks used:
+
+Next.js (App Router)
+React
+TailwindCSS
+MongoDB
+NextAuth / Sessions
+Middleware for protected routes
+React Query (for server state + API fetching)
+Zod (validation)
+Axios / Fetch
+cloud hosting on Vercel
+
+---
+🔒 Authentication Flow (Simple Explanation)
+
+Uses session-based auth via NextAuth
+JWT used inside the session for API validation
+Middleware protects all dashboard routes
+Users must be logged in to access any data
+
+---
+
+🧪 Validation
+
+All forms are validated using Zod, ensuring:
+Correct client details
+Valid due date formats
+Safe API requests
+
+
+✨ Features
+
+🔐 Secure Authentication (NextAuth — Sessions + JWT strategy)
+📅 Create, edit and delete due dates
+👥 Client management
+📝 Track compliance deadlines,automatic creating of next duedates
+📊 Dashboard with all urgent,overdue,completed dates
+🔍 Search & filter due dates
+🔄 Automatic refetch using React Query
+💾 MongoDB database with Mongoose models
+📁 Middleware-protected routes
+📱 Fully responsive UI using Tailwind
+⚡ Fast performance and instant UI updates
+
+
+
+---
+📸 Screenshots
+/dashboardd.webp
+/allduedates.webp
+---
+
+📂 Folder Structure
+
+  /app
+    /api
+    <!-- routes -->
+      /auth 
+      /clients
+      /dashboard
+      /duedate
+      /user
+    /app 
+    <!-- pages -->
+      /clients
+      /dashboard
+      /duedates
+      /user
+  /components
+    /auth
+    /dialogs
+    /duedatecontent
+    /forms
+    /layout
+    /ui
+  /hooks
+  <!-- react query hooks for fetching , caching and invalidaiton  -->
+    /client
+    /dashboard
+    /due
+    /user
+  /lib
+    /auth
+    /db
+    /utils
+    /querykeys
+  /models
+    Audit.ts
+    Client.ts
+    DueDate.ts
+    Firm.ts
+    User.ts
+    Subscription.ts
+  /schemas
+    formschemas.ts
+    apischemas
+  /public
+
+---
+
+⚙ Environment Variables
+
+Create a .env file with:
+
+MONGODB_URI=
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=
+GOOGLE_CLIENT_ID= (optional)
+GOOGLE_CLIENT_SECRET= (optional)
+
+(Replace with your own credentials.)
+
+🚀 Installation
+
+1. Clone repository
+git clone https://github.com/yourusername/dueclock.git
+
+cd dueclock
+
+2. Install dependencies
+
+npm install
+
+4. Run development server
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+App will run at:
+http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+📖 Usage Guide
 
-## Learn More
+1. Register / Login with google
+2. Add a clients 
+3. Create Due Dates for each client
+5. View all deadlines on dashboard
+6. Edit / delete due dates anytime
+7. Search or filter upcoming deadlines
+8. contact using contact feature
+9. automatic next due date creation on completion of date for recurssive dates
+10.you can install dueclock add to home schreen feature form browser
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+📈 Future Improvements
+🔔 Automatic reminder notifications
+📱 Push notifications (PWA)
+👨‍💼 User roles (Admin / Staff)
+📨 Email reminders
+📅 Calendar view
+⚙ Folder-level permissions
+🧾 Client import/export via CSV
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+🪪 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-"# cahelp" 
+MIT License
+
+
+---

@@ -52,20 +52,17 @@ export default function LogoutConfirmButton() {
         <AlertDialogHeader>
           <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
           <AlertDialogDescription>
-            You will be signed out of your account and redirected to the home page.
+            You will be signed out of your account and redirected to the home
+            page.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
-          <Button
-            variant="destructive"
-            onClick={doLogout}
-            disabled={loading}
-          >
+          <Button variant="destructive" onClick={doLogout} disabled={loading}>
             {loading ? "Logging out..." : "Logout"}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );
-} 
+}

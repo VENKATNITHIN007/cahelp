@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useFetchDashboard } from "@/hooks/dashboard/counts";
-import { AlertTriangle, Clock, CheckCircle, } from "lucide-react";
+import { AlertTriangle, Clock, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function DashboardCountsPage() {
@@ -12,12 +12,9 @@ export default function DashboardCountsPage() {
   const safeCount = (key: string) =>
     isLoading ? "…" : isError || !counts ? 0 : (counts as any)[key] ?? 0;
 
-
   const summaryItems = [
-    
     { key: "totalClients", label: "Total Clients" },
     { key: "pendingDues", label: "Pending Dues" },
-
   ];
 
   const items = [
@@ -60,7 +57,9 @@ export default function DashboardCountsPage() {
                 className="flex items-center justify-between gap-3 bg-slate-200 rounded-md px-3 py-2 min-w-0 flex-1"
               >
                 <div className="min-w-0">
-                  <div className="text-sm text-stone-600 truncate">{c.label}</div>
+                  <div className="text-sm text-stone-600 truncate">
+                    {c.label}
+                  </div>
                 </div>
                 <div className="text-lg md:text-xl font-semibold ml-2 flex-shrink-0">
                   {val}
@@ -78,7 +77,9 @@ export default function DashboardCountsPage() {
           let isActive = false;
           if (typeof window !== "undefined") {
             try {
-              isActive = window.location.pathname.startsWith(item.link.split("?")[0]);
+              isActive = window.location.pathname.startsWith(
+                item.link.split("?")[0]
+              );
             } catch {
               isActive = false;
             }
@@ -97,7 +98,9 @@ export default function DashboardCountsPage() {
               aria-current={isActive ? "page" : undefined}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium truncate">{item.label}</span>
+                <span className="text-sm font-medium truncate">
+                  {item.label}
+                </span>
                 <Icon className="h-4 w-4 opacity-80" />
               </div>
               <div className="text-2xl font-bold">{item.value}</div>
