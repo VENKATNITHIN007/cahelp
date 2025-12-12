@@ -13,7 +13,6 @@ https://dueclock.in
 Tech Stacks used:
 
 Next.js (App Router)
-
 React
 
 TailwindCSS
