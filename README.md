@@ -80,14 +80,6 @@ Safe API requests
 
 ⚡ Fast performance and instant UI updates
 
-
-
----
-📸 Screenshots
-/dashboardd.webp
-/allduedates.webp
----
-
 📂 Folder Structure
 
   /app
